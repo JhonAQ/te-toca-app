@@ -31,7 +31,7 @@ const DashboardScreen = ({ navigation }) => {
 
       <TouchableOpacity
         style={styles.requestButton}
-        onPress={() => navigation.navigate("Confirmation")}
+        onPress={() => navigation.navigate("CompanySelection")}
       >
         <Ionicons
           name="add-circle"

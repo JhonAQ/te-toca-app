@@ -20,6 +20,10 @@ import RegisterScreen from './screens/RegisterScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import ConfirmationScreen from './screens/ConfirmationScreen';
 import NotificationScreen from './screens/NotificationScreen';
+import CompanySelectionScreen from './screens/CompanySelectionScreen';
+import QueueTypesScreen from './screens/QueueTypesScreen';
+import QueueDetailsScreen from './screens/QueueDetailsScreen';
+import TicketScreen from './screens/TicketScreen';
 
 const Stack = createStackNavigator();
 
@@ -44,6 +48,10 @@ export default function App() {
               <Stack.Screen name="Login" component={LoginScreen} />
               <Stack.Screen name="Register" component={RegisterScreen} />
               <Stack.Screen name="Dashboard" component={DashboardScreen} />
+              <Stack.Screen name="CompanySelection" component={CompanySelectionScreen} />
+              <Stack.Screen name="QueueTypes" component={QueueTypesScreen} />
+              <Stack.Screen name="QueueDetails" component={QueueDetailsScreen} />
+              <Stack.Screen name="Ticket" component={TicketScreen} />
               <Stack.Screen name="Confirmation" component={ConfirmationScreen} />
               <Stack.Screen name="Notification" component={NotificationScreen} />
             </Stack.Navigator>

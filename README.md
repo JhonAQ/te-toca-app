@@ -5,7 +5,10 @@ Una aplicación móvil para gestión de turnos que permite a los usuarios regist
 ## Características
 
 - Registro y autenticación de usuarios
+- Selección de empresas disponibles
+- Visualización de diferentes colas por empresa
 - Solicitud de turnos virtuales
+- Gestión del estado del ticket (pausar, cancelar)
 - Notificaciones sobre el avance de la fila
 - Interfaz limpia y sencilla
 
@@ -50,8 +53,12 @@ npx expo start
 2. **Pantalla de login**
 3. **Pantalla de registro**
 4. **Dashboard del usuario**
-5. **Confirmación de turno**
-6. **Simulación de notificaciones**
+5. **Selección de empresas**
+6. **Tipos de colas por empresa**
+7. **Detalles de la cola**
+8. **Visualización y gestión de tickets**
+9. **Confirmación de turno**
+10. **Simulación de notificaciones**
 
 ## Desarrollo
 
