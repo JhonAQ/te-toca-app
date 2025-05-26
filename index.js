@@ -1,4 +1,9 @@
+import 'react-native-gesture-handler';  // Debe ser el primer import
 import { registerRootComponent } from 'expo';
+import { LogBox } from 'react-native';
+
+// Ignorar el error específico
+LogBox.ignoreLogs(['Unsupported top level event type "topInsetsChange" dispatched']);
 
 import App from './App';
 
