@@ -18,17 +18,20 @@ Una aplicación móvil para gestión de turnos que permite a los usuarios regist
 ## Instalación
 
 1. Clona este repositorio:
+
 ```
 git clone https://github.com/tu-usuario/tetoca-app.git
 cd TeToca
 ```
 
 2. Instala las dependencias:
+
 ```
 npm install
 ```
 
 3. Inicia la aplicación:
+
 ```
 npx expo start
 ```

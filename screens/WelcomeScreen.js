@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { StatusBar } from "expo-status-bar";
 
 const WelcomeScreen = ({ navigation }) => {
   return (
@@ -10,18 +10,18 @@ const WelcomeScreen = ({ navigation }) => {
         <Text style={styles.logo}>TeToca</Text>
         <Text style={styles.subtitle}>Gestión de turnos simplificada</Text>
       </View>
-      
+
       <View style={styles.buttonContainer}>
-        <TouchableOpacity 
-          style={styles.button} 
-          onPress={() => navigation.navigate('Login')}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate("Login")}
         >
           <Text style={styles.buttonText}>Iniciar sesión</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.button, styles.registerButton]} 
-          onPress={() => navigation.navigate('Register')}
+
+        <TouchableOpacity
+          style={[styles.button, styles.registerButton]}
+          onPress={() => navigation.navigate("Register")}
         >
           <Text style={styles.registerButtonText}>Registrarse</Text>
         </TouchableOpacity>
@@ -33,49 +33,49 @@ const WelcomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#ffffff",
+    alignItems: "center",
+    justifyContent: "center",
     padding: 20,
   },
   logoContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 50,
   },
   logo: {
     fontSize: 45,
-    fontWeight: 'bold',
-    color: '#3498db',
+    fontWeight: "bold",
+    color: "#3498db",
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: '#7f8c8d',
+    color: "#7f8c8d",
   },
   buttonContainer: {
-    width: '80%',
+    width: "80%",
   },
   button: {
-    backgroundColor: '#3498db',
+    backgroundColor: "#3498db",
     paddingVertical: 15,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 10,
   },
   buttonText: {
-    color: '#ffffff',
+    color: "#ffffff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   registerButton: {
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     borderWidth: 1,
-    borderColor: '#3498db',
+    borderColor: "#3498db",
   },
   registerButtonText: {
-    color: '#3498db',
+    color: "#3498db",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 

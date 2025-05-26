@@ -1,6 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // Cambiamos a Ionicons
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons"; // Cambiamos a Ionicons
 
 const NotificationScreen = ({ navigation }) => {
   const [animation] = useState(new Animated.Value(0));
@@ -19,13 +25,13 @@ const NotificationScreen = ({ navigation }) => {
         useNativeDriver: true,
       }),
     ]).start(() => {
-      navigation.navigate('Dashboard');
+      navigation.navigate("Dashboard");
     });
   }, []);
 
   return (
     <View style={styles.container}>
-      <Animated.View 
+      <Animated.View
         style={[
           styles.notificationCard,
           {
@@ -48,12 +54,16 @@ const NotificationScreen = ({ navigation }) => {
           <View style={styles.textContainer}>
             <Text style={styles.title}>¡Tu turno está próximo!</Text>
             <Text style={styles.message}>
-              Faltan 2 personas para tu turno. Por favor acércate a la zona de espera.
+              Faltan 2 personas para tu turno. Por favor acércate a la zona de
+              espera.
             </Text>
           </View>
         </View>
-        
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Dashboard')}>
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate("Dashboard")}
+        >
           <Text style={styles.buttonText}>Ver detalles</Text>
         </TouchableOpacity>
       </Animated.View>
@@ -61,13 +71,14 @@ const NotificationScreen = ({ navigation }) => {
       <View style={styles.infoContainer}>
         <Text style={styles.infoTitle}>Simulación de notificación</Text>
         <Text style={styles.infoText}>
-          Esta es una simulación de cómo se verá la notificación cuando tu turno esté próximo.
-          En la aplicación real, recibirías esta alerta incluso con la app cerrada.
+          Esta es una simulación de cómo se verá la notificación cuando tu turno
+          esté próximo. En la aplicación real, recibirías esta alerta incluso
+          con la app cerrada.
         </Text>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           style={styles.backButton}
-          onPress={() => navigation.navigate('Dashboard')}
+          onPress={() => navigation.navigate("Dashboard")}
         >
           <Text style={styles.backButtonText}>Volver al Dashboard</Text>
         </TouchableOpacity>
@@ -79,12 +90,12 @@ const NotificationScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: "#f8f9fa",
     padding: 20,
     paddingTop: 60,
   },
   notificationCard: {
-    backgroundColor: '#3498db',
+    backgroundColor: "#3498db",
     borderRadius: 12,
     padding: 15,
     marginBottom: 30,
@@ -98,71 +109,71 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   notificationContent: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 15,
   },
   iconContainer: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 15,
   },
   textContainer: {
     flex: 1,
   },
   title: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
   },
   message: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
     lineHeight: 20,
   },
   button: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     borderRadius: 5,
     padding: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
   },
   infoContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   infoTitle: {
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 15,
-    textAlign: 'center',
+    textAlign: "center",
   },
   infoText: {
     fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
+    color: "#666",
+    textAlign: "center",
     lineHeight: 24,
     marginBottom: 30,
   },
   backButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: "#3498db",
     borderRadius: 8,
     paddingVertical: 15,
     paddingHorizontal: 25,
-    alignItems: 'center',
+    alignItems: "center",
   },
   backButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 16,
   },
 });

@@ -1,13 +1,13 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // Cambiamos a Ionicons
+import React from "react";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons"; // Cambiamos a Ionicons
 
 const DashboardScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Dashboard</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Welcome')}>
+        <TouchableOpacity onPress={() => navigation.navigate("Welcome")}>
           <Ionicons name="log-out" size={24} color="#333" />
         </TouchableOpacity>
       </View>
@@ -22,16 +22,23 @@ const DashboardScreen = ({ navigation }) => {
         <View style={styles.statusContent}>
           <View style={styles.statusInfo}>
             <Text style={styles.statusLabel}>No tienes turnos activos</Text>
-            <Text style={styles.statusDescription}>Solicita un nuevo turno para entrar en la fila virtual</Text>
+            <Text style={styles.statusDescription}>
+              Solicita un nuevo turno para entrar en la fila virtual
+            </Text>
           </View>
         </View>
       </View>
 
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.requestButton}
-        onPress={() => navigation.navigate('Confirmation')}
+        onPress={() => navigation.navigate("Confirmation")}
       >
-        <Ionicons name="add-circle" size={20} color="#fff" style={styles.buttonIcon} />
+        <Ionicons
+          name="add-circle"
+          size={20}
+          color="#fff"
+          style={styles.buttonIcon}
+        />
         <Text style={styles.requestButtonText}>Solicitar turno</Text>
       </TouchableOpacity>
 
@@ -49,35 +56,35 @@ const DashboardScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: "#f8f9fa",
     padding: 20,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginTop: 40,
     marginBottom: 20,
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   welcomeSection: {
     marginBottom: 25,
   },
   welcomeText: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
-    color: '#3498db',
+    color: "#3498db",
   },
   subtext: {
     fontSize: 16,
-    color: '#666',
+    color: "#666",
   },
   statusCard: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 20,
     marginBottom: 20,
@@ -92,34 +99,34 @@ const styles = StyleSheet.create({
   },
   statusTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 15,
   },
   statusContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   statusInfo: {
     flex: 1,
   },
   statusLabel: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
     marginBottom: 5,
   },
   statusDescription: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     lineHeight: 20,
   },
   requestButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: "#3498db",
     borderRadius: 10,
     paddingVertical: 15,
     paddingHorizontal: 20,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -133,8 +140,8 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   requestButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 16,
   },
   recentSection: {
@@ -142,19 +149,19 @@ const styles = StyleSheet.create({
   },
   recentTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 15,
   },
   emptyActivity: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 30,
   },
   emptyText: {
     marginTop: 10,
-    color: '#999',
+    color: "#999",
     fontSize: 16,
-  }
+  },
 });
 
 export default DashboardScreen;

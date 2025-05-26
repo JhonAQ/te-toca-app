@@ -1,6 +1,13 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // Cambiamos a Ionicons para mayor compatibilidad
+import React from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons"; // Cambiamos a Ionicons para mayor compatibilidad
 
 const RegisterScreen = ({ navigation }) => {
   return (
@@ -15,10 +22,7 @@ const RegisterScreen = ({ navigation }) => {
 
       <View style={styles.formContainer}>
         <Text style={styles.label}>Nombre completo</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Ingrese su nombre"
-        />
+        <TextInput style={styles.input} placeholder="Ingrese su nombre" />
 
         <Text style={styles.label}>Correo electrónico</Text>
         <TextInput
@@ -34,7 +38,7 @@ const RegisterScreen = ({ navigation }) => {
           placeholder="Cree una contraseña"
           secureTextEntry
         />
-        
+
         <Text style={styles.label}>Confirmar contraseña</Text>
         <TextInput
           style={styles.input}
@@ -42,16 +46,16 @@ const RegisterScreen = ({ navigation }) => {
           secureTextEntry
         />
 
-        <TouchableOpacity 
-          style={styles.button} 
-          onPress={() => navigation.navigate('Dashboard')}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate("Dashboard")}
         >
           <Text style={styles.buttonText}>Registrarse</Text>
         </TouchableOpacity>
-        
+
         <View style={styles.loginContainer}>
           <Text style={styles.loginText}>¿Ya tienes una cuenta? </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+          <TouchableOpacity onPress={() => navigation.navigate("Login")}>
             <Text style={styles.loginLink}>Inicia sesión</Text>
           </TouchableOpacity>
         </View>
@@ -63,19 +67,19 @@ const RegisterScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     padding: 20,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginTop: 40,
     marginBottom: 30,
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   formContainer: {
     marginTop: 20,
@@ -83,40 +87,40 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 8,
-    color: '#333',
+    color: "#333",
   },
   input: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     borderRadius: 8,
     padding: 15,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: "#e0e0e0",
   },
   button: {
-    backgroundColor: '#3498db',
+    backgroundColor: "#3498db",
     paddingVertical: 15,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 10,
   },
   buttonText: {
-    color: '#ffffff',
+    color: "#ffffff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   loginContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginTop: 20,
     marginBottom: 30,
   },
   loginText: {
-    color: '#333',
+    color: "#333",
   },
   loginLink: {
-    color: '#3498db',
-    fontWeight: 'bold',
+    color: "#3498db",
+    fontWeight: "bold",
   },
 });
 
