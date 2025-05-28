@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-// Datos simulados de empresas
 const companiesData = [
   {
     id: "1",
@@ -77,9 +76,7 @@ const CompanySelectionScreen = ({ navigation }) => {
         <Text style={styles.companyCategory}>{item.category}</Text>
         <View style={styles.waitTimeContainer}>
           <Ionicons name="time-outline" size={14} color="#666" />
-          <Text style={styles.waitTime}>
-            Tiempo promedio: {item.waitTime}
-          </Text>
+          <Text style={styles.waitTime}>Tiempo promedio: {item.waitTime}</Text>
         </View>
       </View>
       <Ionicons name="chevron-forward" size={24} color="#3498db" />
@@ -97,7 +94,12 @@ const CompanySelectionScreen = ({ navigation }) => {
       </View>
 
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
+        <Ionicons
+          name="search"
+          size={20}
+          color="#666"
+          style={styles.searchIcon}
+        />
         <TextInput
           style={styles.searchInput}
           placeholder="Buscar empresa..."

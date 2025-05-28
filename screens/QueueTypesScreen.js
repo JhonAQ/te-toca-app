@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-// Datos simulados de tipos de colas
 const queueTypesData = [
   {
     id: "1",
@@ -22,7 +21,8 @@ const queueTypesData = [
   {
     id: "2",
     type: "Atención Preferencial",
-    description: "Para adultos mayores, embarazadas y personas con discapacidad",
+    description:
+      "Para adultos mayores, embarazadas y personas con discapacidad",
     icon: "accessibility-outline",
     waitingPeople: 5,
     estimatedTime: "15 min",
@@ -51,7 +51,12 @@ const QueueTypesScreen = ({ route, navigation }) => {
   const renderQueueTypeItem = ({ item }) => (
     <TouchableOpacity
       style={styles.queueCard}
-      onPress={() => navigation.navigate("QueueDetails", { queueType: item, company: company })}
+      onPress={() =>
+        navigation.navigate("QueueDetails", {
+          queueType: item,
+          company: company,
+        })
+      }
     >
       <View style={styles.iconContainer}>
         <Ionicons name={item.icon} size={28} color="#3498db" />
