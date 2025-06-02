@@ -58,16 +58,15 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'flex-start',
-    marginBottom: 15,
   },
   logo: {
     width: 150,
-    height: 60,
+    height: 170,
   },
   topSectionText: {
     color: 'white',
     fontWeight: 'bold',
-    fontSize: 22,
+    fontSize: 18,
     textAlign: 'center',
     marginTop: 10,
   },
