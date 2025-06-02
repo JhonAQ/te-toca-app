@@ -1,5 +1,4 @@
 import "react-native-gesture-handler"; // Debe ser el primer import
-import "nativewind"; // Importación necesaria para NativeWind
 import { registerRootComponent } from "expo";
 import { LogBox } from "react-native";
 
