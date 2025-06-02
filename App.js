@@ -23,16 +23,16 @@ export default function App() {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
           <NavigationContainer>
-            <StatusBar style="auto" />
-            <Stack.Navigator
-              initialRouteName="Welcome"
-              screenOptions={{
-                headerShown: false,
-                cardStyle: { backgroundColor: "#FFFFFF" },
-                animationEnabled: false,
-                detachInactiveScreens: false,
-              }}
-            >
+              <StatusBar style="auto" />
+              <Stack.Navigator
+                initialRouteName="Welcome"
+                screenOptions={{
+                  headerShown: false,
+                  cardStyle: { backgroundColor: "#FFFFFF" },
+                  animationEnabled: false,
+                  detachInactiveScreens: false,
+                }}
+              >
               <Stack.Screen name="Login" component={LoginScreen} />
               <Stack.Screen name="Register" component={RegisterScreen} />
               <Stack.Screen name="Ticket" component={TicketScreen} />
