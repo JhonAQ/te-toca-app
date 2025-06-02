@@ -24,7 +24,7 @@ export default function EnterpriseScreen({ route, navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* Header - Logo y datos de la empresa */}
         <View style={styles.header}>
