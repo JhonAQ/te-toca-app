@@ -5,15 +5,20 @@ import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { LogBox, View } from "react-native";
+import colors from "./constants/colors"; // Corregido: importar como variable
 
+// Importación de pantallas
+import LoginScreen from "./screens/LoginScreen";
+import RegisterScreen from "./screens/RegisterScreen";
+import TicketScreen from "./screens/TicketScreen";
+import CategoryScreen from "./screens/CategoryScreen";
+import QrCamScreen from "./screens/QrCamScreen";
+
+// Ignorar advertencias específicas
 LogBox.ignoreLogs([
   'Unsupported top level event type "topInsetsChange" dispatched',
   "useInsertionEffect must not schedule updates",
 ]);
-
-import LoginScreen from "./screens/LoginScreen";
-import RegisterScreen from "./screens/RegisterScreen";
-import TicketScreen from "./screens/TicketScreen";
 
 const Stack = createStackNavigator();
 
@@ -23,19 +28,21 @@ export default function App() {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
           <NavigationContainer>
-              <StatusBar style="auto" />
-              <Stack.Navigator
-                initialRouteName="Welcome"
-                screenOptions={{
-                  headerShown: false,
-                  cardStyle: { backgroundColor: "#FFFFFF" },
-                  animationEnabled: false,
-                  detachInactiveScreens: false,
-                }}
-              >
+            <StatusBar style="auto" />
+            <Stack.Navigator
+              initialRouteName="Category"
+              screenOptions={{
+                headerShown: false,
+                cardStyle: { backgroundColor: colors.dark1 },
+                animationEnabled: true,
+                detachInactiveScreens: false,
+              }}
+            >
               <Stack.Screen name="Login" component={LoginScreen} />
               <Stack.Screen name="Register" component={RegisterScreen} />
               <Stack.Screen name="Ticket" component={TicketScreen} />
+              <Stack.Screen name="Category" component={CategoryScreen} />
+              <Stack.Screen name="QrCam" component={QrCamScreen} />
             </Stack.Navigator>
           </NavigationContainer>
         </SafeAreaProvider>
