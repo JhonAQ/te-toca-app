@@ -22,6 +22,8 @@ const InfoCard = ({ icon, title, value, color = Colors.accent }) => (
 );
 
 export default function QueueScreen({ route, navigation }) {
+  const { queueId, enterpriseId, queueName, enterpriseName } = route.params;
+
   // Datos de ejemplo (normalmente vendrían de la API o props)
   const queueInfo = {
     enterpriseName: "Banco de Crédito del Perú",
@@ -33,6 +35,24 @@ export default function QueueScreen({ route, navigation }) {
     logoUrl: require('../assets/default-logo.png'), // Asegúrate de tener una imagen por defecto
   };
 
+  // Función para unirse a la fila
+  const handleJoinQueue = () => {
+    // En una aplicación real, aquí harías la llamada API para unirse a la fila
+    // y obtendrías los datos del ticket asignado
+    
+    // Simulamos datos de un ticket para navegación
+    const ticketData = {
+      ticketId: 'AB25',  // En un caso real, este valor vendría del backend
+      enterprise: enterpriseName,
+      queueName: queueName,
+      position: 8,
+      waitTime: '25 min'
+    };
+    
+    // Navegar a la pantalla del ticket
+    navigation.navigate('Ticket', { ticketData });
+  };
+  
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <ImageBackground
@@ -103,7 +123,7 @@ export default function QueueScreen({ route, navigation }) {
               </View>
 
               {/* Botón para unirse a la fila */}
-              <TouchableOpacity style={styles.joinButton} onPress={() => console.log('Unirse a la fila')}>
+              <TouchableOpacity style={styles.joinButton} onPress={handleJoinQueue}>
                 <View style={styles.joinButtonContent}>
                   <Ionicons name="ticket-outline" size={24} color={Colors.white} style={styles.joinButtonIcon} />
                   <View style={styles.joinButtonTextContainer}>

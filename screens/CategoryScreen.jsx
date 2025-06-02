@@ -1,70 +1,117 @@
 import React from 'react';
-import { View, Text, ImageBackground, StyleSheet, ScrollView, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  SafeAreaView,
+  StatusBar
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import SearchBar from '../components/SearchBar';
-import CategoryCard from '../components/CategoryCard';
 import Colors from '../constants/colors';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function CategoryScreen() {
+// Componente para tarjetas de categoría
+const CategoryCard = ({ category, onPress }) => (
+  <TouchableOpacity 
+    style={styles.categoryCard}
+    onPress={onPress}
+  >
+    <View style={styles.cardImageContainer}>
+      <Image source={{ uri: category.imageUrl }} style={styles.categoryImage} />
+    </View>
+    <Text style={styles.categoryTitle}>{category.title}</Text>
+    <Text style={styles.categoryCount}>{category.enterpriseCount} establecimientos</Text>
+  </TouchableOpacity>
+);
+
+export default function CategoryScreen({ navigation }) {
+  // Datos de ejemplo
   const categories = [
-    { id: '1', iconName: 'document-text', label: 'Documentos', color: '#4b7bec' },
-    { id: '2', iconName: 'home', label: 'Vivienda', color: '#2ecc71' },
-    { id: '3', iconName: 'car', label: 'Vehículos', color: '#e74c3c' },
-    { id: '4', iconName: 'school', label: 'Educación', color: '#f39c12' },
-    { id: '5', iconName: 'business', label: 'Empresas', color: '#9b59b6' },
-    { id: '6', iconName: 'medkit', label: 'Salud', color: '#3498db' },
-    { id: '7', iconName: 'people', label: 'Identidad', color: '#e67e22' },
-    { id: '8', iconName: 'card', label: 'Impuestos', color: '#16a085' },
+    { 
+      id: 'bank', 
+      title: 'Bancos', 
+      enterpriseCount: 15, 
+      imageUrl: 'https://via.placeholder.com/150?text=Bank'
+    },
+    { 
+      id: 'government', 
+      title: 'Entidades Públicas', 
+      enterpriseCount: 8, 
+      imageUrl: 'https://via.placeholder.com/150?text=Gov'
+    },
+    { 
+      id: 'health', 
+      title: 'Servicios de Salud', 
+      enterpriseCount: 12, 
+      imageUrl: 'https://via.placeholder.com/150?text=Health'
+    },
+    { 
+      id: 'education', 
+      title: 'Educación', 
+      enterpriseCount: 6, 
+      imageUrl: 'https://via.placeholder.com/150?text=Edu'
+    },
+    { 
+      id: 'retail', 
+      title: 'Tiendas', 
+      enterpriseCount: 20, 
+      imageUrl: 'https://via.placeholder.com/150?text=Shop'
+    }
   ];
 
+  // Navegar a la lista de empresas con la categoría seleccionada
+  const handleCategoryPress = (category) => {
+    navigation.navigate('EnterpriseList', { category });
+  };
+
+  // Navegar a la pantalla de escaneo QR
+  const handleQRScan = () => {
+    navigation.navigate('QrCam');
+  };
+
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
-      <ImageBackground
-        source={require('../assets/background-image.png')}
-        style={styles.backgroundImage}
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.white} />
+      
+      <View style={styles.header}>
+        <Image
+          source={require('../assets/TeTocaLogo.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        {/* Puedes añadir un botón de perfil aquí si es necesario */}
+      </View>
+      
+      <View style={styles.welcomeContainer}>
+        <Text style={styles.welcomeTitle}>Bienvenido</Text>
+        <Text style={styles.welcomeSubtitle}>¿Qué estás buscando hoy?</Text>
+      </View>
+      
+      {/* Botón de escanear QR prominente */}
+      <TouchableOpacity 
+        style={styles.scanQRButton} 
+        onPress={handleQRScan}
       >
-        <View style={styles.container}>
-          <View style={styles.topSection}>
-            <View style={styles.logoContainer}>
-              <Image
-                source={require('../assets/TeTocaLogo.png')}
-                style={styles.logo}
-                resizeMode="contain"
-              />
-            </View>
-            <Text style={styles.topSectionText}>¿Qué trámite quieres realizar?</Text>
-          </View>
-
-          <View style={styles.bottomSection}>
-            <View style={styles.searchContainer}>
-              <View style={styles.searchBarSection}>
-                <SearchBar placeholder="Buscar categoría..." />
-              </View>
-            </View>
-
-            <View style={styles.categoriesSection}>
-              <Text style={styles.sectionTitle}>Categorías</Text>
-              <ScrollView style={styles.categoriesContainer}>
-                <View style={styles.categoryItemContainer}>
-                  {categories.map(category => (
-                    <CategoryCard
-                      key={category.id}
-                      iconName={category.iconName}
-                      label={category.label}
-                      color={category.color}
-                      onPress={() => console.log(`Categoría seleccionada: ${category.label}`)}
-                    />
-                  ))}
-                </View>
-              </ScrollView>
-            </View>
-            <TouchableOpacity style={styles.cameraButton} onPress={() => console.log('Cámara presionada')}>
-              <Ionicons name="camera" size={24} color={Colors.white} />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ImageBackground>
+        <Ionicons name="qr-code" size={24} color={Colors.white} />
+        <Text style={styles.scanQRText}>Escanear código QR</Text>
+      </TouchableOpacity>
+      
+      <Text style={styles.sectionTitle}>Categorías</Text>
+      
+      <ScrollView 
+        style={styles.scrollView} 
+        contentContainerStyle={styles.categoriesContainer}
+      >
+        {categories.map((category) => (
+          <CategoryCard 
+            key={category.id} 
+            category={category} 
+            onPress={() => handleCategoryPress(category)}
+          />
+        ))}
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -72,79 +119,97 @@ export default function CategoryScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: Colors.white,
   },
-  backgroundImage: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-  },
-  container: {
-    flex: 1,
-    flexDirection: 'column',
-  },
-  topSection: {
-    flex: 2,
-    justifyContent: 'center',
+  header: {
     paddingHorizontal: 20,
-  },
-  logoContainer: {
-    alignItems: 'flex-start',
+    paddingTop: 10,
+    paddingBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   logo: {
-    width: 150,
-    height: 170,
+    width: 120,
+    height: 40,
   },
-  topSectionText: {
-    color: 'white',
+  welcomeContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 15,
+  },
+  welcomeTitle: {
+    fontSize: 22,
     fontWeight: 'bold',
-    fontSize: 18,
-    textAlign: 'center',
-    marginTop: 10,
+    color: Colors.dark1,
   },
-  bottomSection: {
-    flex: 4,
-    backgroundColor: 'white',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    padding: 20,
-    paddingTop: 25,
+  welcomeSubtitle: {
+    fontSize: 16,
+    color: Colors.dark2,
+    marginTop: 5,
   },
-  searchContainer: {
+  scanQRButton: {
+    backgroundColor: Colors.accent,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
-  },
-  searchBarSection: {
-    flex: 1,
-    marginRight: 10,
-  },
-  cameraButton: {
-    backgroundColor: Colors.dark2,
-    borderRadius: 15,
-    width: 50,
-    height: 50,
     justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: Colors.accent,
-    alignSelf: "center"
+    paddingVertical: 12,
+    marginHorizontal: 20,
+    marginBottom: 15,
+    borderRadius: 12,
   },
-  categoriesSection: {
-    flex: 1,
+  scanQRText: {
+    color: Colors.white,
+    fontWeight: '500',
+    fontSize: 16,
+    marginLeft: 8,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 15,
-    marginLeft: 5,
+    paddingHorizontal: 20,
+    marginBottom: 10,
+    color: Colors.dark2,
   },
-  categoriesContainer: {
+  scrollView: {
     flex: 1,
   },
-  categoryItemContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingHorizontal: 10,
+  categoriesContainer: {
+    paddingHorizontal: 15,
+    paddingBottom: 20,
+  },
+  categoryCard: {
+    backgroundColor: Colors.gray3,
+    borderRadius: 15,
+    padding: 15,
+    marginVertical: 8,
+    marginHorizontal: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  cardImageContainer: {
+    height: 120,
+    borderRadius: 10,
+    overflow: 'hidden',
+    marginBottom: 10,
+  },
+  categoryImage: {
+    width: '100%',
+    height: '100%',
+  },
+  categoryTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: Colors.dark1,
+  },
+  categoryCount: {
+    fontSize: 13,
+    color: Colors.gray1,
+    marginTop: 4,
   },
 });

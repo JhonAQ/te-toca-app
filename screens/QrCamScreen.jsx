@@ -8,7 +8,8 @@ import {
   TouchableOpacity,
   Dimensions,
   Animated,
-  Easing
+  Easing,
+  Alert
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -50,10 +51,47 @@ export default function QrCamScreen({ navigation }) {
   }, []);
 
   const handleBarCodeScanned = ({ data }) => {
-    // Aquí procesamos el código QR escaneado
-    console.log(`Código QR escaneado: ${data}`);
-    // Navegar a la pantalla que corresponda según el QR escaneado
-    // navigation.navigate('Queue', { qrData: data });
+    try {
+      // En una aplicación real, el código QR debería contener datos estructurados
+      // como JSON o un formato específico que puedas parsear
+      const parsedData = JSON.parse(data);
+      
+      // Verificar si el formato del QR es válido para nuestra aplicación
+      if (parsedData.type === 'tetoca-queue') {
+        // Navegar a la pantalla de ticket con los datos del QR
+        navigation.navigate('Ticket', { ticketData: parsedData.ticketData });
+      } else {
+        // Si el código no es reconocido, mostrar un mensaje
+        Alert.alert(
+          "Código no válido",
+          "El código QR escaneado no corresponde a una cola de TeToca.",
+          [{ text: "OK" }]
+        );
+      }
+    } catch (error) {
+      // Si hay error al parsear, probablemente no es un QR de nuestra app
+      Alert.alert(
+        "Error de lectura",
+        "No se pudo procesar el código QR. Por favor, intente nuevamente.",
+        [{ text: "OK" }]
+      );
+    }
+  };
+  
+  // Para fines de prueba, podemos simular un escaneo exitoso
+  const simulateSuccessfulScan = () => {
+    const mockTicketData = {
+      ticketId: 'QR42',
+      enterprise: 'Banco Nacional',
+      queueName: 'Atención Preferencial',
+      position: 3,
+      waitTime: '10 min'
+    };
+    
+    navigation.navigate('Ticket', { 
+      ticketData: mockTicketData,
+      fromQR: true 
+    });
   };
 
   if (!permission) {

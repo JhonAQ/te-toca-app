@@ -1,82 +1,58 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
 
-const EnterpriseCard = ({
-  logoUrl,
-  name,
-  address,
-  isAvailable = true,
-  activeQueues = 0,
-  onPress
-}) => {
+const EnterpriseCard = ({ enterprise, onPress }) => {
   return (
-    <View style={styles.container}>
-      <View style={styles.contentContainer}>
-        {/* Logo a la izquierda */}
-        <View style={styles.logoContainer}>
-          <Image
-            source={logoUrl ? { uri: logoUrl } : require('../assets/default-logo.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
+    <TouchableOpacity style={styles.card} onPress={onPress}>
+      <Image 
+        source={{ uri: enterprise.imageUrl }} 
+        style={styles.image} 
+      />
+      <View style={styles.infoContainer}>
+        <Text style={styles.name}>{enterprise.name}</Text>
+        <View style={styles.locationContainer}>
+          <Ionicons name="location-outline" size={14} color={Colors.gray1} />
+          <Text style={styles.address} numberOfLines={1}>{enterprise.address}</Text>
         </View>
-
-        {/* Información en columna a la derecha */}
-        <View style={styles.infoContainer}>
-          <Text style={styles.name}>{name}</Text>
-          <Text style={styles.address}>{address}</Text>
-          <Text style={styles.status}>
-            {isAvailable ? 'Disponible' : 'No disponible'} • {activeQueues} {activeQueues === 1 ? 'cola activa' : 'colas activas'}
-          </Text>
+        <View style={styles.statsContainer}>
+          <View style={styles.statItem}>
+            <Ionicons name="time-outline" size={14} color={Colors.accent} />
+            <Text style={styles.statValue}>{enterprise.waitTime}</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Ionicons name="people-outline" size={14} color={Colors.dark2} />
+            <Text style={styles.statValue}>{enterprise.queueCount} colas</Text>
+          </View>
+          <Text style={styles.distance}>{enterprise.distance}</Text>
         </View>
       </View>
-
-      {/* Botón Ver colas */}
-      <TouchableOpacity
-        style={styles.buttonContainer}
-        onPress={onPress}
-      >
-        <Text style={styles.buttonText}>Ver colas</Text>
-      </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  card: {
+    flexDirection: 'row',
     backgroundColor: Colors.white,
     borderRadius: 12,
-    padding: 16,
-    marginVertical: 8,
-    marginHorizontal: 16,
-    elevation: 3,
+    marginBottom: 12,
+    padding: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 3,
+    elevation: 2,
   },
-  contentContainer: {
-    flexDirection: 'row',
-    marginBottom: 8,
-  },
-  logoContainer: {
+  image: {
     width: 60,
     height: 60,
     borderRadius: 8,
-    overflow: 'hidden',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.gray3,
-    marginRight: 12,
-  },
-  logo: {
-    width: 50,
-    height: 50,
   },
   infoContainer: {
     flex: 1,
-    justifyContent: 'center',
+    marginLeft: 12,
   },
   name: {
     fontSize: 16,
@@ -84,23 +60,35 @@ const styles = StyleSheet.create({
     color: Colors.dark1,
     marginBottom: 4,
   },
+  locationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   address: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
+    fontSize: 13,
+    color: Colors.gray1,
+    marginLeft: 4,
+    flex: 1,
   },
-  status: {
-    fontSize: 14,
-    color: '#666',
+  statsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  buttonContainer: {
-    alignSelf: 'flex-end',
-    marginTop: 8,
+  statItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 12,
   },
-  buttonText: {
-    color: Colors.accent,
-    fontWeight: '600',
-    fontSize: 14,
+  statValue: {
+    fontSize: 12,
+    color: Colors.dark2,
+    marginLeft: 4,
+  },
+  distance: {
+    fontSize: 12,
+    color: Colors.gray1,
+    marginLeft: 'auto',
   },
 });
 

@@ -10,7 +10,6 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
-  TouchableWithoutFeedback,
   Keyboard,
   ScrollView
 } from 'react-native';
@@ -114,167 +113,165 @@ export default function RegisterScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom']} onStartShouldSetResponder={() => Keyboard.dismiss()}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.container}>
-            {/* Fondo con gradiente */}
-            <LinearGradient
-              colors={[Colors.dark1, Colors.dark3, Colors.accent]}
-              style={styles.gradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-            />
+        <View style={styles.container}>
+          {/* Fondo con gradiente */}
+          <LinearGradient
+            colors={[Colors.dark1, Colors.dark3, Colors.accent]}
+            style={styles.gradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          />
 
-            {/* Elementos decorativos */}
-            <View style={styles.decorativeCircle1} />
-            <View style={styles.decorativeCircle2} />
+          {/* Elementos decorativos */}
+          <View style={styles.decorativeCircle1} pointerEvents="none" />
+          <View style={styles.decorativeCircle2} pointerEvents="none" />
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-              {/* Logo y título principal */}
-              <View style={styles.headerSection}>
-                <Image
-                  source={require('../assets/TeTocaLogo.png')}
-                  style={styles.logo}
-                  resizeMode="contain"
+          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            {/* Logo y título principal */}
+            <View style={styles.headerSection}>
+              <Image
+                source={require('../assets/TeTocaLogo.png')}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+              <Text style={styles.appName}>TeToca</Text>
+              <Text style={styles.appSlogan}>Únete a nuestra comunidad</Text>
+            </View>
+
+            {/* Contenedor de formulario animado */}
+            <Animated.View
+              style={[
+                styles.formContainer,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ translateY: translateY }]
+                }
+              ]}
+            >
+              <Text style={styles.formTitle}>Crear cuenta</Text>
+
+              {/* Campo para nombre completo */}
+              <View style={styles.inputWrapper}>
+                <View style={styles.iconBackground}>
+                  <Ionicons name="person" size={18} color={Colors.white} />
+                </View>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Nombre completo"
+                  placeholderTextColor={Colors.gray1}
+                  value={fullName}
+                  onChangeText={setFullName}
                 />
-                <Text style={styles.appName}>TeToca</Text>
-                <Text style={styles.appSlogan}>Únete a nuestra comunidad</Text>
               </View>
+              {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
 
-              {/* Contenedor de formulario animado */}
-              <Animated.View
-                style={[
-                  styles.formContainer,
-                  {
-                    opacity: fadeAnim,
-                    transform: [{ translateY: translateY }]
-                  }
-                ]}
-              >
-                <Text style={styles.formTitle}>Crear cuenta</Text>
-
-                {/* Campo para nombre completo */}
-                <View style={styles.inputWrapper}>
-                  <View style={styles.iconBackground}>
-                    <Ionicons name="person" size={18} color={Colors.white} />
-                  </View>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Nombre completo"
-                    placeholderTextColor={Colors.gray1}
-                    value={fullName}
-                    onChangeText={setFullName}
-                  />
+              {/* Campo para correo electrónico */}
+              <View style={styles.inputWrapper}>
+                <View style={styles.iconBackground}>
+                  <Ionicons name="mail" size={18} color={Colors.white} />
                 </View>
-                {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
+                <TextInput
+                  style={styles.input}
+                  placeholder="Correo electrónico"
+                  placeholderTextColor={Colors.gray1}
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+              </View>
+              {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
 
-                {/* Campo para correo electrónico */}
-                <View style={styles.inputWrapper}>
-                  <View style={styles.iconBackground}>
-                    <Ionicons name="mail" size={18} color={Colors.white} />
-                  </View>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Correo electrónico"
-                    placeholderTextColor={Colors.gray1}
-                    value={email}
-                    onChangeText={setEmail}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                  />
+              {/* Campo para contraseña */}
+              <View style={styles.inputWrapper}>
+                <View style={styles.iconBackground}>
+                  <Ionicons name="lock-closed" size={18} color={Colors.white} />
                 </View>
-                {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
-
-                {/* Campo para contraseña */}
-                <View style={styles.inputWrapper}>
-                  <View style={styles.iconBackground}>
-                    <Ionicons name="lock-closed" size={18} color={Colors.white} />
-                  </View>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Contraseña"
-                    placeholderTextColor={Colors.gray1}
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry={!showPassword}
-                  />
-                  <TouchableOpacity
-                    style={styles.eyeIcon}
-                    onPress={() => setShowPassword(!showPassword)}
-                  >
-                    <Ionicons
-                      name={showPassword ? 'eye-off' : 'eye'}
-                      size={20}
-                      color={Colors.gray1}
-                    />
-                  </TouchableOpacity>
-                </View>
-                {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
-
-                {/* Campo para confirmar contraseña */}
-                <View style={styles.inputWrapper}>
-                  <View style={styles.iconBackground}>
-                    <Ionicons name="lock-closed" size={18} color={Colors.white} />
-                  </View>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Confirmar contraseña"
-                    placeholderTextColor={Colors.gray1}
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
-                    secureTextEntry={!showConfirmPassword}
-                  />
-                  <TouchableOpacity
-                    style={styles.eyeIcon}
-                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    <Ionicons
-                      name={showConfirmPassword ? 'eye-off' : 'eye'}
-                      size={20}
-                      color={Colors.gray1}
-                    />
-                  </TouchableOpacity>
-                </View>
-                {confirmPasswordError ? <Text style={styles.errorText}>{confirmPasswordError}</Text> : null}
-
-                {/* Botón de registro */}
+                <TextInput
+                  style={styles.input}
+                  placeholder="Contraseña"
+                  placeholderTextColor={Colors.gray1}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                />
                 <TouchableOpacity
-                  style={styles.registerButton}
-                  onPress={handleRegister}
-                  activeOpacity={0.8}
+                  style={styles.eyeIcon}
+                  onPress={() => setShowPassword(!showPassword)}
                 >
-                  <LinearGradient
-                    colors={[Colors.accent, Colors.dark3]}
-                    style={styles.buttonGradient}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                  >
-                    <Text style={styles.registerButtonText}>Crear cuenta</Text>
-                  </LinearGradient>
+                  <Ionicons
+                    name={showPassword ? 'eye-off' : 'eye'}
+                    size={20}
+                    color={Colors.gray1}
+                  />
                 </TouchableOpacity>
+              </View>
+              {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
 
-                {/* Términos y condiciones */}
-                <Text style={styles.termsText}>
-                  Al registrarte, aceptas nuestros{' '}
-                  <Text style={styles.termsLink}>Términos y condiciones</Text> y{' '}
-                  <Text style={styles.termsLink}>Política de privacidad</Text>
-                </Text>
-
-                {/* Enlace para iniciar sesión */}
-                <View style={styles.loginContainer}>
-                  <Text style={styles.loginText}>¿Ya tienes una cuenta? </Text>
-                  <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                    <Text style={styles.loginLink}>Inicia sesión</Text>
-                  </TouchableOpacity>
+              {/* Campo para confirmar contraseña */}
+              <View style={styles.inputWrapper}>
+                <View style={styles.iconBackground}>
+                  <Ionicons name="lock-closed" size={18} color={Colors.white} />
                 </View>
-              </Animated.View>
-            </ScrollView>
-          </View>
-        </TouchableWithoutFeedback>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Confirmar contraseña"
+                  placeholderTextColor={Colors.gray1}
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry={!showConfirmPassword}
+                />
+                <TouchableOpacity
+                  style={styles.eyeIcon}
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  <Ionicons
+                    name={showConfirmPassword ? 'eye-off' : 'eye'}
+                    size={20}
+                    color={Colors.gray1}
+                  />
+                </TouchableOpacity>
+              </View>
+              {confirmPasswordError ? <Text style={styles.errorText}>{confirmPasswordError}</Text> : null}
+
+              {/* Botón de registro */}
+              <TouchableOpacity
+                style={styles.registerButton}
+                onPress={handleRegister}
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={[Colors.accent, Colors.dark3]}
+                  style={styles.buttonGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <Text style={styles.registerButtonText}>Crear cuenta</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              {/* Términos y condiciones */}
+              <Text style={styles.termsText}>
+                Al registrarte, aceptas nuestros{' '}
+                <Text style={styles.termsLink}>Términos y condiciones</Text> y{' '}
+                <Text style={styles.termsLink}>Política de privacidad</Text>
+              </Text>
+
+              {/* Enlace para iniciar sesión */}
+              <View style={styles.loginContainer}>
+                <Text style={styles.loginText}>¿Ya tienes una cuenta? </Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                  <Text style={styles.loginLink}>Inicia sesión</Text>
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
+          </ScrollView>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

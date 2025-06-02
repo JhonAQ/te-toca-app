@@ -33,7 +33,7 @@ export default function App() {
           <NavigationContainer>
             <StatusBar style="auto" />
             <Stack.Navigator
-              initialRouteName="Ticket"
+              initialRouteName="Login"
               screenOptions={{
                 headerShown: false,
                 cardStyle: { backgroundColor: colors.dark1 },

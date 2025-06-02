@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Colors from '../constants/colors';
 
 export default function EnterpriseScreen({ route, navigation }) {
-  // Datos de ejemplo - normalmente vendrían de la API o de las props
+  // En un caso real, usarías el enterpriseId para obtener los datos de la API
+  const { enterpriseId } = route.params;
+  
+  // Datos de ejemplo - normalmente vendrían de la API
   const enterprise = {
     id: '1',
     name: 'Banco de Crédito del Perú',
@@ -23,11 +26,30 @@ export default function EnterpriseScreen({ route, navigation }) {
     ]
   };
 
+  const handleQueuePress = (queue) => {
+    navigation.navigate('Queue', { 
+      queueId: queue.id, 
+      enterpriseId: enterprise.id,
+      queueName: queue.name,
+      enterpriseName: enterprise.name
+    });
+  };
+
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom', 'top']}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Header - Logo y datos de la empresa */}
+        {/* Header con botón de regreso */}
         <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="arrow-back" size={24} color={Colors.dark1} />
+          </TouchableOpacity>
+        </View>
+        
+        {/* Header - Logo y datos de la empresa */}
+        <View style={styles.enterpriseHeader}>
           <View style={styles.headerContent}>
             <Image 
               source={enterprise.logo} 
@@ -85,7 +107,7 @@ export default function EnterpriseScreen({ route, navigation }) {
                   
                   <TouchableOpacity 
                     style={styles.joinButton}
-                    onPress={() => navigation.navigate('Queue', { queueId: queue.id, enterpriseId: enterprise.id })}
+                    onPress={() => handleQueuePress(queue)}
                   >
                     <Text style={styles.joinButtonText}>Unirse</Text>
                   </TouchableOpacity>
@@ -109,11 +131,20 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   header: {
-    backgroundColor: Colors.white,
-    paddingVertical: 20,
     paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.gray3,
+    paddingVertical: 12,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.gray3,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  enterpriseHeader: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
   },
   headerContent: {
     flexDirection: 'row',
@@ -122,7 +153,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 60,
     height: 60,
-    borderRadius: 8,
+    borderRadius: 30,
     backgroundColor: Colors.gray3,
   },
   enterpriseInfo: {
@@ -140,86 +171,86 @@ const styles = StyleSheet.create({
     color: Colors.gray1,
   },
   infoSection: {
+    backgroundColor: Colors.gray3,
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.gray3,
+    marginHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 20,
   },
   infoItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 8,
+    marginBottom: 12,
   },
   infoText: {
+    marginLeft: 10,
     fontSize: 14,
     color: Colors.dark2,
-    marginLeft: 10,
-    flex: 1,
   },
   queuesSection: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 24,
   },
   queuesSectionTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: Colors.dark3,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: Colors.dark1,
     marginBottom: 16,
   },
   queuesContainer: {
-    gap: 16,
+    gap: 12,
   },
   queueCard: {
     backgroundColor: Colors.white,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: Colors.gray3,
-    shadowColor: Colors.dark1,
-    shadowOffset: { width: 0, height: 2 },
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 3,
     elevation: 2,
-    marginBottom: 2,
   },
   queueCardContent: {
     flexDirection: 'row',
-    padding: 16,
     alignItems: 'center',
   },
   queueIconContainer: {
     width: 50,
     height: 50,
-    borderRadius: 8,
+    borderRadius: 25,
     backgroundColor: Colors.gray3,
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: 12,
   },
   queueInfo: {
     flex: 1,
-    marginLeft: 12,
   },
   queueName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.dark1,
-    marginBottom: 6,
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: Colors.dark2,
+    marginBottom: 4,
   },
   queueStats: {
     flexDirection: 'row',
-    alignItems: 'center',
+    gap: 10,
   },
   queueStatText: {
-    fontSize: 12,
+    fontSize: 13,
     color: Colors.gray1,
-    marginRight: 12,
   },
   joinButton: {
     backgroundColor: Colors.accent,
-    paddingVertical: 8,
     paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 8,
   },
   joinButtonText: {
     color: Colors.white,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
 });
