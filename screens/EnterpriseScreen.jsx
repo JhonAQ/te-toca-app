@@ -1,95 +1,100 @@
-import React from 'react';
-import { View, Text, ImageBackground, StyleSheet, ScrollView, Image, TouchableOpacity } from "react-native";
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import SearchBar from '../components/SearchBar';
-import EnterpriseCard from '../components/EnterpriseCard';
 import Colors from '../constants/colors';
 
-export default function EnterpriseScreen({ navigation }) {
-  // Datos de ejemplo para las empresas
-  const enterprises = [
-    {
-      id: '1',
-      name: 'Banco de Crédito del Perú',
-      address: 'Av. Independencia 123, Arequipa',
-      logoUrl: 'https://example.com/bcp-logo.png',
-      isAvailable: true,
-      activeQueues: 3
-    },
-    {
-      id: '2',
-      name: 'RENIEC',
-      address: 'Av. Dolores Prolongación 456, Arequipa',
-      logoUrl: 'https://example.com/reniec-logo.png',
-      isAvailable: true,
-      activeQueues: 2
-    },
-    {
-      id: '3',
-      name: 'Banco Continental',
-      address: 'Av. Ejército 789, Arequipa',
-      logoUrl: 'https://example.com/bbva-logo.png',
-      isAvailable: false,
-      activeQueues: 0
-    },
-    {
-      id: '4',
-      name: 'SUNAT',
-      address: 'Calle Jerusalén 234, Arequipa',
-      logoUrl: 'https://example.com/sunat-logo.png',
-      isAvailable: true,
-      activeQueues: 4
-    },
-  ];
+export default function EnterpriseScreen({ route, navigation }) {
+  // Datos de ejemplo - normalmente vendrían de la API o de las props
+  const enterprise = {
+    id: '1',
+    name: 'Banco de Crédito del Perú',
+    shortName: 'BCP',
+    type: 'Entidad bancaria',
+    logo: require('../assets/default-logo.png'), // Asegúrate de tener este recurso o usar una URL
+    address: 'Av. Independencia 123, Arequipa',
+    schedule: 'Lun - Vie: 9:00 - 18:00, Sáb: 9:00 - 13:00',
+    phone: '+51 954 123 456',
+    queues: [
+      { id: '1', name: 'Operaciones en ventanilla', icon: 'cash-outline', peopleWaiting: 12, avgTime: '15 min' },
+      { id: '2', name: 'Atención al cliente', icon: 'people-outline', peopleWaiting: 8, avgTime: '20 min' },
+      { id: '3', name: 'Apertura de cuentas', icon: 'document-text-outline', peopleWaiting: 5, avgTime: '25 min' },
+      { id: '4', name: 'Préstamos y créditos', icon: 'card-outline', peopleWaiting: 3, avgTime: '30 min' }
+    ]
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom']}>
-      <ImageBackground
-        source={require('../assets/background-image.png')}
-        style={styles.backgroundImage}
-      >
-        <View style={styles.container}>
-          <View style={styles.topSection}>
-            <View style={styles.logoContainer}>
-              <Image
-                source={require('../assets/TeTocaLogo.png')}
-                style={styles.logo}
-                resizeMode="contain"
-              />
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        {/* Header - Logo y datos de la empresa */}
+        <View style={styles.header}>
+          <View style={styles.headerContent}>
+            <Image
+              source={enterprise.logo}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <View style={styles.enterpriseInfo}>
+              <Text style={styles.enterpriseName}>{enterprise.name}</Text>
+              <Text style={styles.enterpriseType}>{enterprise.type}</Text>
             </View>
-            <Text style={styles.topSectionText}>¿Dónde quieres hacer trámites?</Text>
-          </View>
-
-          <View style={styles.bottomSection}>
-            <View style={styles.searchContainer}>
-              <View style={styles.searchBarSection}>
-                <SearchBar placeholder="Buscar institución..." />
-              </View>
-            </View>
-
-            <View style={styles.enterprisesSection}>
-              <Text style={styles.sectionTitle}>Instituciones</Text>
-              <ScrollView style={styles.enterprisesContainer}>
-                {enterprises.map(enterprise => (
-                  <EnterpriseCard
-                    key={enterprise.id}
-                    name={enterprise.name}
-                    address={enterprise.address}
-                    logoUrl={enterprise.logoUrl}
-                    isAvailable={enterprise.isAvailable}
-                    activeQueues={enterprise.activeQueues}
-                    onPress={() => navigation.navigate('Queue', { enterpriseId: enterprise.id })}
-                  />
-                ))}
-              </ScrollView>
-            </View>
-            <TouchableOpacity style={styles.cameraButton} onPress={() => navigation.navigate('QrCam')}>
-              <Ionicons name="camera" size={24} color={Colors.white} />
-            </TouchableOpacity>
           </View>
         </View>
-      </ImageBackground>
+
+        {/* Sección de datos principales */}
+        <View style={styles.infoSection}>
+          <View style={styles.infoItem}>
+            <Ionicons name="location-outline" size={20} color={Colors.dark2} />
+            <Text style={styles.infoText}>{enterprise.address}</Text>
+          </View>
+
+          <View style={styles.infoItem}>
+            <Ionicons name="time-outline" size={20} color={Colors.dark2} />
+            <Text style={styles.infoText}>{enterprise.schedule}</Text>
+          </View>
+
+          <View style={styles.infoItem}>
+            <Ionicons name="call-outline" size={20} color={Colors.dark2} />
+            <Text style={styles.infoText}>{enterprise.phone}</Text>
+          </View>
+        </View>
+
+        {/* Sección de trámites y colas */}
+        <View style={styles.queuesSection}>
+          <Text style={styles.queuesSectionTitle}>Selecciona un trámite y únete a la fila</Text>
+
+          <View style={styles.queuesContainer}>
+            {enterprise.queues.map(queue => (
+              <View key={queue.id} style={styles.queueCard}>
+                <View style={styles.queueCardContent}>
+                  <View style={styles.queueIconContainer}>
+                    <Ionicons name={queue.icon} size={28} color={Colors.dark2} />
+                  </View>
+
+                  <View style={styles.queueInfo}>
+                    <Text style={styles.queueName}>{queue.name}</Text>
+                    <View style={styles.queueStats}>
+                      <Text style={styles.queueStatText}>
+                        <Ionicons name="people-outline" size={14} color={Colors.gray1} /> {queue.peopleWaiting} en fila
+                      </Text>
+                      <Text style={styles.queueStatText}>
+                        <Ionicons name="time-outline" size={14} color={Colors.gray1} /> {queue.avgTime}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <TouchableOpacity
+                    style={styles.joinButton}
+                    onPress={() => navigation.navigate('Queue', { queueId: queue.id, enterpriseId: enterprise.id })}
+                  >
+                    <Text style={styles.joinButtonText}>Unirse</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -97,73 +102,124 @@ export default function EnterpriseScreen({ navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-  },
-  backgroundImage: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
+    backgroundColor: Colors.white,
   },
   container: {
     flex: 1,
-    flexDirection: 'column',
+    backgroundColor: Colors.white,
   },
-  topSection: {
-    flex: 2,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
+  header: {
+    backgroundColor: Colors.white,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.gray3,
   },
-  logoContainer: {
-    alignItems: 'flex-start',
-  },
-  logo: {
-    width: 150,
-    height: 170,
-  },
-  topSectionText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 18,
-    textAlign: 'center',
-    marginTop: 10,
-  },
-  bottomSection: {
-    flex: 4,
-    backgroundColor: 'white',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    padding: 20,
-    paddingTop: 25,
-  },
-  searchContainer: {
+  headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
   },
-  searchBarSection: {
-    flex: 1,
-    marginRight: 10,
+  logo: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    backgroundColor: Colors.gray3,
   },
-  cameraButton: {
-    backgroundColor: Colors.dark2,
-    borderRadius: 15,
-    width: 50,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: Colors.accent,
-    alignSelf: "center"
-  },
-  enterprisesSection: {
+  enterpriseInfo: {
+    marginLeft: 16,
     flex: 1,
   },
-  sectionTitle: {
+  enterpriseName: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 15,
-    marginLeft: 5,
+    color: Colors.dark1,
+    marginBottom: 4,
   },
-  enterprisesContainer: {
+  enterpriseType: {
+    fontSize: 14,
+    color: Colors.gray1,
+  },
+  infoSection: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.gray3,
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 8,
+  },
+  infoText: {
+    fontSize: 14,
+    color: Colors.dark2,
+    marginLeft: 10,
     flex: 1,
+  },
+  queuesSection: {
+    padding: 16,
+  },
+  queuesSectionTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: Colors.accent,
+    marginBottom: 16,
+  },
+  queuesContainer: {
+    gap: 16,
+  },
+  queueCard: {
+    backgroundColor: Colors.white,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.gray3,
+    shadowColor: Colors.dark1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    marginBottom: 2,
+  },
+  queueCardContent: {
+    flexDirection: 'row',
+    padding: 16,
+    alignItems: 'center',
+  },
+  queueIconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+    backgroundColor: Colors.gray3,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  queueInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  queueName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.dark1,
+    marginBottom: 6,
+  },
+  queueStats: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  queueStatText: {
+    fontSize: 12,
+    color: Colors.gray1,
+    marginRight: 12,
+  },
+  joinButton: {
+    backgroundColor: Colors.accent,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  joinButtonText: {
+    color: Colors.white,
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

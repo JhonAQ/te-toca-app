@@ -46,6 +46,7 @@ export default function App() {
               <Stack.Screen name="Ticket" component={TicketScreen} />
               <Stack.Screen name="Category" component={CategoryScreen} />
               <Stack.Screen name="Enterprise" component={EnterpriseScreen} />
+              <Stack.Screen name="EnterpriseList" component={EnterpriseListScreen} />
               <Stack.Screen name="Queue" component={QueueScreen} />
               <Stack.Screen name="QrCam" component={QrCamScreen} />
             </Stack.Navigator>
