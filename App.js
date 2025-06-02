@@ -5,16 +5,16 @@ import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { LogBox, View } from "react-native";
-import colors from "./constants/colors"; // Corregido: importar como variable
+import * as SplashScreen from 'expo-splash-screen';
+import colors from "./constants/colors";
+import { useEffect, useCallback, useState } from "react";
 
-// Importación de pantallas
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
 import TicketScreen from "./screens/TicketScreen";
 import CategoryScreen from "./screens/CategoryScreen";
 import QrCamScreen from "./screens/QrCamScreen";
 
-// Ignorar advertencias específicas
 LogBox.ignoreLogs([
   'Unsupported top level event type "topInsetsChange" dispatched',
   "useInsertionEffect must not schedule updates",
