@@ -1,8 +1,23 @@
 import React from 'react';
-import { View, Text, ImageBackground, StyleSheet, ScrollView, Image } from "react-native";
+import { View, Text, ImageBackground, StyleSheet, ScrollView, Image, TouchableOpacity } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
 import SearchBar from '../components/SearchBar';
+import CategoryCard from '../components/CategoryCard';
+import Colors from '../constants/colors';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CategoryScreen() {
+  const categories = [
+    { id: '1', iconName: 'document-text', label: 'Documentos', color: '#4b7bec' },
+    { id: '2', iconName: 'home', label: 'Vivienda', color: '#2ecc71' },
+    { id: '3', iconName: 'car', label: 'Vehículos', color: '#e74c3c' },
+    { id: '4', iconName: 'school', label: 'Educación', color: '#f39c12' },
+    { id: '5', iconName: 'business', label: 'Empresas', color: '#9b59b6' },
+    { id: '6', iconName: 'medkit', label: 'Salud', color: '#3498db' },
+    { id: '7', iconName: 'people', label: 'Identidad', color: '#e67e22' },
+    { id: '8', iconName: 'card', label: 'Impuestos', color: '#16a085' },
+  ];
+
   return (
     <ImageBackground
       source={require('../assets/background-image.png')}
@@ -21,20 +36,31 @@ export default function CategoryScreen() {
         </View>
 
         <View style={styles.bottomSection}>
-          <View style={styles.searchBarSection}>
-            <SearchBar placeholder="Buscar categoría..." />
+          <View style={styles.searchContainer}>
+            <View style={styles.searchBarSection}>
+              <SearchBar placeholder="Buscar categoría..." />
+            </View>
           </View>
 
           <View style={styles.categoriesSection}>
             <Text style={styles.sectionTitle}>Categorías</Text>
             <ScrollView style={styles.categoriesContainer}>
-              {/* Aquí van los elementos de categorías */}
-              {/* Ejemplo de contenedor de categorías */}
               <View style={styles.categoryItemContainer}>
-                {/* Elementos de categoría irían aquí */}
+                {categories.map(category => (
+                  <CategoryCard
+                    key={category.id}
+                    iconName={category.iconName}
+                    label={category.label}
+                    color={category.color}
+                    onPress={() => console.log(`Categoría seleccionada: ${category.label}`)}
+                  />
+                ))}
               </View>
             </ScrollView>
           </View>
+          <TouchableOpacity style={styles.cameraButton} onPress={() => console.log('Cámara presionada')}>
+            <Ionicons name="camera" size={24} color={Colors.white} />
+          </TouchableOpacity>
         </View>
       </View>
     </ImageBackground>
@@ -78,8 +104,25 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 25,
   },
-  searchBarSection: {
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 15,
+  },
+  searchBarSection: {
+    flex: 1,
+    marginRight: 10,
+  },
+  cameraButton: {
+    backgroundColor: Colors.dark2,
+    borderRadius: 15,
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: Colors.accent,
+    alignSelf: "center"
   },
   categoriesSection: {
     flex: 1,
@@ -97,5 +140,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    paddingHorizontal: 10,
   },
 });
