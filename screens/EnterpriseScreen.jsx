@@ -24,13 +24,13 @@ export default function EnterpriseScreen({ route, navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom', 'top']}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* Header - Logo y datos de la empresa */}
         <View style={styles.header}>
           <View style={styles.headerContent}>
-            <Image
-              source={enterprise.logo}
+            <Image 
+              source={enterprise.logo} 
               style={styles.logo}
               resizeMode="contain"
             />
@@ -47,12 +47,12 @@ export default function EnterpriseScreen({ route, navigation }) {
             <Ionicons name="location-outline" size={20} color={Colors.dark2} />
             <Text style={styles.infoText}>{enterprise.address}</Text>
           </View>
-
+          
           <View style={styles.infoItem}>
             <Ionicons name="time-outline" size={20} color={Colors.dark2} />
             <Text style={styles.infoText}>{enterprise.schedule}</Text>
           </View>
-
+          
           <View style={styles.infoItem}>
             <Ionicons name="call-outline" size={20} color={Colors.dark2} />
             <Text style={styles.infoText}>{enterprise.phone}</Text>
@@ -62,7 +62,7 @@ export default function EnterpriseScreen({ route, navigation }) {
         {/* Sección de trámites y colas */}
         <View style={styles.queuesSection}>
           <Text style={styles.queuesSectionTitle}>Selecciona un trámite y únete a la fila</Text>
-
+          
           <View style={styles.queuesContainer}>
             {enterprise.queues.map(queue => (
               <View key={queue.id} style={styles.queueCard}>
@@ -70,7 +70,7 @@ export default function EnterpriseScreen({ route, navigation }) {
                   <View style={styles.queueIconContainer}>
                     <Ionicons name={queue.icon} size={28} color={Colors.dark2} />
                   </View>
-
+                  
                   <View style={styles.queueInfo}>
                     <Text style={styles.queueName}>{queue.name}</Text>
                     <View style={styles.queueStats}>
@@ -82,8 +82,8 @@ export default function EnterpriseScreen({ route, navigation }) {
                       </Text>
                     </View>
                   </View>
-
-                  <TouchableOpacity
+                  
+                  <TouchableOpacity 
                     style={styles.joinButton}
                     onPress={() => navigation.navigate('Queue', { queueId: queue.id, enterpriseId: enterprise.id })}
                   >
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
   queuesSectionTitle: {
     fontSize: 17,
     fontWeight: '600',
-    color: Colors.accent,
+    color: Colors.dark3,
     marginBottom: 16,
   },
   queuesContainer: {
