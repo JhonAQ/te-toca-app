@@ -1,101 +1,179 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import colors from "../constants/colors";
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ImageBackground,
+  TouchableOpacity,
+  Dimensions,
+  Button
+} from 'react-native';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import Colors from '../constants/colors';
 
-export default function QrCamScreen() {
-  return (
-    <View style={styles.container}>
-      <View style={styles.logoContainer}>
-        <Text style={styles.logoText}>TE</Text>
-        <MaterialCommunityIcons
-          name="bell"
-          size={36}
-          color={colors.primary}
-          style={styles.bellIcon}
+const { width } = Dimensions.get('window');
+const qrScanSize = width * 0.7; // 70% del ancho de la pantalla
+
+export default function QrCamScreen({ navigation }) {
+  const [permission, requestPermission] = useCameraPermissions();
+
+  const handleBarCodeScanned = ({ data }) => {
+    // Aquí procesamos el código QR escaneado
+    console.log(`Código QR escaneado: ${data}`);
+    // Navegar a la pantalla que corresponda según el QR escaneado
+    // navigation.navigate('Queue', { qrData: data });
+  };
+
+  if (!permission) {
+    // Los permisos de cámara están aún cargando
+    return (
+      <View style={styles.permissionContainer}>
+        <Text>Cargando permisos de cámara...</Text>
+      </View>
+    );
+  }
+
+  if (!permission.granted) {
+    // No se han concedido los permisos de cámara todavía
+    return (
+      <View style={styles.permissionContainer}>
+        <Text style={styles.permissionText}>
+          Necesitamos tu permiso para usar la cámara y escanear códigos QR
+        </Text>
+        <Button
+          title="Conceder permiso"
+          onPress={requestPermission}
+          color={Colors.accent}
         />
-        <Text style={styles.logoTextBelow}>TOCA</Text>
       </View>
+    );
+  }
 
-      <View style={styles.qrSection}>
-        <View style={styles.qrPlaceholder} />
-        <TouchableOpacity style={styles.cameraButton}>
-          <MaterialCommunityIcons
-            name="camera"
-            size={32}
-            color={colors.primary}
-          />
-        </TouchableOpacity>
-      </View>
+  return (
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+      <ImageBackground
+        source={require('../assets/background-image.png')}
+        style={styles.backgroundImage}
+      >
+        <View style={styles.container}>
+          {/* Logo grande y centrado */}
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('../assets/TeTocaLogo.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
 
-      <Text style={styles.instructionText}>
-        Escanea el código QR del establecimiento para tomar tu turno
-      </Text>
-    </View>
+          {/* Área de escaneo QR con marco */}
+          <View style={styles.qrContainer}>
+            <Image
+              source={require('../assets/qr-border.png')}
+              style={styles.qrBorder}
+              resizeMode="contain"
+            />
+            <View style={styles.cameraContainer}>
+              <CameraView
+                style={styles.camera}
+                barcodeScannerSettings={{
+                  barcodeTypes: ['qr'],
+                }}
+                onBarcodeScanned={handleBarCodeScanned}
+              />
+            </View>
+          </View>
+
+          {/* Texto informativo */}
+          <Text style={styles.instructionText}>
+            Escanea el código QR del establecimiento para tomar tu turno
+          </Text>
+
+          {/* Botón de cámara */}
+          <TouchableOpacity
+            style={styles.cameraButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="camera" size={24} color={Colors.white} />
+          </TouchableOpacity>
+        </View>
+      </ImageBackground>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+  backgroundImage: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  permissionContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 30,
+  },
+  permissionText: {
+    textAlign: 'center',
+    marginBottom: 20,
   },
   logoContainer: {
-    alignItems: "center",
-    marginBottom: 40,
+    marginBottom: 30,
   },
-  logoText: {
-    fontSize: 44,
-    fontWeight: "bold",
-    color: colors.text,
-    fontFamily: "sans-serif",
-    marginBottom: 0,
+  logo: {
+    width: 180,
+    height: 80,
   },
-  bellIcon: {
-    marginVertical: 6,
+  qrContainer: {
+    position: 'relative',
+    width: qrScanSize,
+    height: qrScanSize,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 30,
   },
-  logoTextBelow: {
-    fontSize: 28,
-    color: colors.text,
-    marginTop: 0,
-    fontWeight: "bold",
-    letterSpacing: 2,
+  qrBorder: {
+    width: qrScanSize,
+    height: qrScanSize,
+    position: 'absolute',
+    zIndex: 2,
   },
-  qrSection: {
-    alignItems: "center",
-    marginBottom: 32,
+  cameraContainer: {
+    width: qrScanSize - 30, // Un poco más pequeño que el marco
+    height: qrScanSize - 30,
+    overflow: 'hidden',
+    borderRadius: 15,
   },
-  qrPlaceholder: {
-    width: 220,
-    height: 220,
-    backgroundColor: colors.lightGray,
-    borderRadius: 24,
-    borderWidth: 5,
-    borderColor: colors.primary,
-    marginBottom: 18,
-  },
-  cameraButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    borderWidth: 2,
-    borderColor: colors.primary,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: colors.backgroundLight,
-    elevation: 3,
+  camera: {
+    flex: 1,
   },
   instructionText: {
-    color: colors.primary,
-    fontSize: 16,
-    textAlign: "center",
-    marginTop: 10,
-    marginBottom: 0,
-    fontWeight: "500",
-    lineHeight: 22,
-    maxWidth: 260,
+    color: Colors.white,
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 30,
+    paddingHorizontal: 20,
+  },
+  cameraButton: {
+    backgroundColor: Colors.dark2,
+    borderRadius: 15,
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: Colors.accent,
   },
 });
