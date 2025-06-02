@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,8 @@ import {
   ImageBackground,
   TouchableOpacity,
   Dimensions,
-  Button
+  Animated,
+  Easing
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,10 +16,38 @@ import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
 
 const { width } = Dimensions.get('window');
-const qrScanSize = width * 0.7; // 70% del ancho de la pantalla
+const qrScanSize = width * 0.8; // 80% del ancho de la pantalla
+const cameraSize = qrScanSize * 0.7; // Cámara será el 80% del tamaño del marco
 
 export default function QrCamScreen({ navigation }) {
   const [permission, requestPermission] = useCameraPermissions();
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  // Configurar la animación de pulso del marco
+  useEffect(() => {
+    const pulseAnimation = Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 1.05,
+        duration: 1500,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 1500,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      })
+    ]);
+
+    // Repetir la animación de manera infinita
+    Animated.loop(pulseAnimation).start();
+
+    return () => {
+      // Detener animación cuando se desmonta el componente
+      scaleAnim.stopAnimation();
+    };
+  }, []);
 
   const handleBarCodeScanned = ({ data }) => {
     // Aquí procesamos el código QR escaneado
@@ -43,11 +72,12 @@ export default function QrCamScreen({ navigation }) {
         <Text style={styles.permissionText}>
           Necesitamos tu permiso para usar la cámara y escanear códigos QR
         </Text>
-        <Button
-          title="Conceder permiso"
+        <TouchableOpacity
+          style={styles.permissionButton}
           onPress={requestPermission}
-          color={Colors.accent}
-        />
+        >
+          <Text style={styles.permissionButtonText}>Conceder permiso</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -68,13 +98,19 @@ export default function QrCamScreen({ navigation }) {
             />
           </View>
 
-          {/* Área de escaneo QR con marco */}
-          <View style={styles.qrContainer}>
+          {/* Área de escaneo QR con marco animado */}
+          <Animated.View
+            style={[
+              styles.qrContainer,
+              { transform: [{ scale: scaleAnim }] }
+            ]}
+          >
             <Image
               source={require('../assets/qr-border.png')}
               style={styles.qrBorder}
               resizeMode="contain"
             />
+            {/* Cámara dentro del marco */}
             <View style={styles.cameraContainer}>
               <CameraView
                 style={styles.camera}
@@ -84,7 +120,7 @@ export default function QrCamScreen({ navigation }) {
                 onBarcodeScanned={handleBarCodeScanned}
               />
             </View>
-          </View>
+          </Animated.View>
 
           {/* Texto informativo */}
           <Text style={styles.instructionText}>
@@ -124,17 +160,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 30,
+    backgroundColor: Colors.dark1,
   },
   permissionText: {
     textAlign: 'center',
     marginBottom: 20,
+    color: Colors.white,
+    fontSize: 16,
+  },
+  permissionButton: {
+    backgroundColor: Colors.accent,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  permissionButtonText: {
+    color: Colors.white,
+    fontWeight: '600',
   },
   logoContainer: {
-    marginBottom: 30,
   },
   logo: {
-    width: 180,
-    height: 80,
+    width: 220, // Logo más grande
+    height: 180, // Altura proporcional
   },
   qrContainer: {
     position: 'relative',
@@ -145,16 +193,16 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   qrBorder: {
-    width: qrScanSize,
-    height: qrScanSize,
+    width: '100%',
+    height: '100%',
     position: 'absolute',
     zIndex: 2,
   },
   cameraContainer: {
-    width: qrScanSize - 30, // Un poco más pequeño que el marco
-    height: qrScanSize - 30,
+    width: cameraSize,
+    height: cameraSize,
     overflow: 'hidden',
-    borderRadius: 15,
+    borderRadius: 10,
   },
   camera: {
     flex: 1,
@@ -167,13 +215,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   cameraButton: {
-    backgroundColor: Colors.dark2,
+    backgroundColor: Colors.dark3,
     borderRadius: 15,
-    width: 50,
-    height: 50,
+    width: 60,
+    height: 60,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: Colors.accent,
+    borderWidth: 4,
+    borderColor: Colors.dark2,
   },
 });
