@@ -5,7 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { LogBox, View } from "react-native";
-import * as SplashScreen from 'expo-splash-screen';
+import * as SplashScreen from "expo-splash-screen";
 import colors from "./constants/colors";
 import { useEffect, useCallback, useState } from "react";
 
@@ -13,7 +13,10 @@ import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
 import TicketScreen from "./screens/TicketScreen";
 import CategoryScreen from "./screens/CategoryScreen";
+import EnterpriseScreen from "./screens/EnterpriseScreen";
+import EnterpriseListScreen from "./screens/EnterpriseListScreen";
 import QrCamScreen from "./screens/QrCamScreen";
+import QueueScreen from "./screens/QueueScreen";
 
 LogBox.ignoreLogs([
   'Unsupported top level event type "topInsetsChange" dispatched',
@@ -30,7 +33,7 @@ export default function App() {
           <NavigationContainer>
             <StatusBar style="auto" />
             <Stack.Navigator
-              initialRouteName="Category"
+              initialRouteName="Enterprise"
               screenOptions={{
                 headerShown: false,
                 cardStyle: { backgroundColor: colors.dark1 },
@@ -42,6 +45,8 @@ export default function App() {
               <Stack.Screen name="Register" component={RegisterScreen} />
               <Stack.Screen name="Ticket" component={TicketScreen} />
               <Stack.Screen name="Category" component={CategoryScreen} />
+              <Stack.Screen name="Enterprise" component={EnterpriseScreen} />
+              <Stack.Screen name="Queue" component={QueueScreen} />
               <Stack.Screen name="QrCam" component={QrCamScreen} />
             </Stack.Navigator>
           </NavigationContainer>
