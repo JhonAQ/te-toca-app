@@ -1,5 +1,4 @@
-import "react-native-gesture-handler"; // Debe ser el primer import
-import React from "react";
+import "react-native-gesture-handler";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { StatusBar } from "expo-status-bar";
@@ -12,21 +11,13 @@ LogBox.ignoreLogs([
   "useInsertionEffect must not schedule updates",
 ]);
 
-import WelcomeScreen from "./screens/WelcomeScreen";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
-import DashboardScreen from "./screens/DashboardScreen";
-import ConfirmationScreen from "./screens/ConfirmationScreen";
-import NotificationScreen from "./screens/NotificationScreen";
-import CompanySelectionScreen from "./screens/CompanySelectionScreen";
-import QueueTypesScreen from "./screens/QueueTypesScreen";
-import QueueDetailsScreen from "./screens/QueueDetailsScreen";
 import TicketScreen from "./screens/TicketScreen";
 
 const Stack = createStackNavigator();
 
 export default function App() {
-  // Importante: Usamos una estructura anidada adecuada para los proveedores
   return (
     <View style={{ flex: 1 }}>
       <GestureHandlerRootView style={{ flex: 1 }}>
@@ -38,32 +29,13 @@ export default function App() {
               screenOptions={{
                 headerShown: false,
                 cardStyle: { backgroundColor: "#FFFFFF" },
-                animationEnabled: false, // Deshabilitar animaciones puede ayudar
-                detachInactiveScreens: false, // Evita problemas de desconexión de pantallas
+                animationEnabled: false,
+                detachInactiveScreens: false,
               }}
             >
-              <Stack.Screen name="Welcome" component={WelcomeScreen} />
               <Stack.Screen name="Login" component={LoginScreen} />
               <Stack.Screen name="Register" component={RegisterScreen} />
-              <Stack.Screen name="Dashboard" component={DashboardScreen} />
-              <Stack.Screen
-                name="CompanySelection"
-                component={CompanySelectionScreen}
-              />
-              <Stack.Screen name="QueueTypes" component={QueueTypesScreen} />
-              <Stack.Screen
-                name="QueueDetails"
-                component={QueueDetailsScreen}
-              />
               <Stack.Screen name="Ticket" component={TicketScreen} />
-              <Stack.Screen
-                name="Confirmation"
-                component={ConfirmationScreen}
-              />
-              <Stack.Screen
-                name="Notification"
-                component={NotificationScreen}
-              />
             </Stack.Navigator>
           </NavigationContainer>
         </SafeAreaProvider>
