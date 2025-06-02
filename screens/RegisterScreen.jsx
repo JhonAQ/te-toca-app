@@ -241,21 +241,6 @@ export default function RegisterScreen({ navigation }) {
                 </View>
                 {confirmPasswordError ? <Text style={styles.errorText}>{confirmPasswordError}</Text> : null}
 
-                {/* Campo para teléfono (opcional) */}
-                <View style={styles.inputWrapper}>
-                  <View style={styles.iconBackground}>
-                    <Ionicons name="call" size={18} color={Colors.white} />
-                  </View>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Teléfono (opcional)"
-                    placeholderTextColor={Colors.gray1}
-                    value={phone}
-                    onChangeText={setPhone}
-                    keyboardType="phone-pad"
-                  />
-                </View>
-
                 {/* Botón de registro */}
                 <TouchableOpacity
                   style={styles.registerButton}
