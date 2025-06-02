@@ -19,55 +19,60 @@ export default function CategoryScreen() {
   ];
 
   return (
-    <ImageBackground
-      source={require('../assets/background-image.png')}
-      style={styles.backgroundImage}
-    >
-      <View style={styles.container}>
-        <View style={styles.topSection}>
-          <View style={styles.logoContainer}>
-            <Image
-              source={require('../assets/TeTocaLogo.png')}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-          <Text style={styles.topSectionText}>¿Qué trámite quieres realizar?</Text>
-        </View>
-
-        <View style={styles.bottomSection}>
-          <View style={styles.searchContainer}>
-            <View style={styles.searchBarSection}>
-              <SearchBar placeholder="Buscar categoría..." />
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+      <ImageBackground
+        source={require('../assets/background-image.png')}
+        style={styles.backgroundImage}
+      >
+        <View style={styles.container}>
+          <View style={styles.topSection}>
+            <View style={styles.logoContainer}>
+              <Image
+                source={require('../assets/TeTocaLogo.png')}
+                style={styles.logo}
+                resizeMode="contain"
+              />
             </View>
+            <Text style={styles.topSectionText}>¿Qué trámite quieres realizar?</Text>
           </View>
 
-          <View style={styles.categoriesSection}>
-            <Text style={styles.sectionTitle}>Categorías</Text>
-            <ScrollView style={styles.categoriesContainer}>
-              <View style={styles.categoryItemContainer}>
-                {categories.map(category => (
-                  <CategoryCard
-                    key={category.id}
-                    iconName={category.iconName}
-                    label={category.label}
-                    color={category.color}
-                    onPress={() => console.log(`Categoría seleccionada: ${category.label}`)}
-                  />
-                ))}
+          <View style={styles.bottomSection}>
+            <View style={styles.searchContainer}>
+              <View style={styles.searchBarSection}>
+                <SearchBar placeholder="Buscar categoría..." />
               </View>
-            </ScrollView>
+            </View>
+
+            <View style={styles.categoriesSection}>
+              <Text style={styles.sectionTitle}>Categorías</Text>
+              <ScrollView style={styles.categoriesContainer}>
+                <View style={styles.categoryItemContainer}>
+                  {categories.map(category => (
+                    <CategoryCard
+                      key={category.id}
+                      iconName={category.iconName}
+                      label={category.label}
+                      color={category.color}
+                      onPress={() => console.log(`Categoría seleccionada: ${category.label}`)}
+                    />
+                  ))}
+                </View>
+              </ScrollView>
+            </View>
+            <TouchableOpacity style={styles.cameraButton} onPress={() => console.log('Cámara presionada')}>
+              <Ionicons name="camera" size={24} color={Colors.white} />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.cameraButton} onPress={() => console.log('Cámara presionada')}>
-            <Ionicons name="camera" size={24} color={Colors.white} />
-          </TouchableOpacity>
         </View>
-      </View>
-    </ImageBackground>
+      </ImageBackground>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   backgroundImage: {
     flex: 1,
     width: '100%',
