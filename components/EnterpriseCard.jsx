@@ -11,7 +11,7 @@ const EnterpriseCard = ({
   onPress
 }) => {
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.7}>
       <View style={styles.contentContainer}>
         {/* Logo a la izquierda */}
         <View style={styles.logoContainer}>
@@ -33,13 +33,10 @@ const EnterpriseCard = ({
       </View>
 
       {/* Botón Ver colas */}
-      <TouchableOpacity
-        style={styles.buttonContainer}
-        onPress={onPress}
-      >
+      <View style={styles.buttonContainer}>
         <Text style={styles.buttonText}>Ver colas</Text>
-      </TouchableOpacity>
-    </View>
+      </View>
+    </TouchableOpacity>
   );
 };
 

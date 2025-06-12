@@ -79,7 +79,7 @@ export default function EnterpriseListScreen({ navigation }) {
                     logoUrl={enterprise.logoUrl}
                     isAvailable={enterprise.isAvailable}
                     activeQueues={enterprise.activeQueues}
-                    onPress={() => navigation.navigate('Queue', { enterpriseId: enterprise.id })}
+                    onPress={() => navigation.navigate('Enterprise', { enterpriseId: enterprise.id })}
                   />
                 ))}
               </ScrollView>
