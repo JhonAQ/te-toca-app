@@ -296,7 +296,7 @@ export default function TicketScreen({ navigation, route }) {
                 end={{ x: 1, y: 1 }}
               >
                 <Ionicons name="download-outline" size={24} color={Colors.white} />
-                <Text style={styles.actionButtonText}>Descargar</Text>
+                <Text style={styles.actionButtonText}>Compartir</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>

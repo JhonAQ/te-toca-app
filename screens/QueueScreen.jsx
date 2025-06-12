@@ -103,7 +103,7 @@ export default function QueueScreen({ route, navigation }) {
               </View>
 
               {/* Botón para unirse a la fila */}
-              <TouchableOpacity style={styles.joinButton} onPress={() => console.log('Unirse a la fila')}>
+              <TouchableOpacity style={styles.joinButton} onPress={() => navigation.navigate('Ticket')}>
                 <View style={styles.joinButtonContent}>
                   <Ionicons name="ticket-outline" size={24} color={Colors.white} style={styles.joinButtonIcon} />
                   <View style={styles.joinButtonTextContainer}>

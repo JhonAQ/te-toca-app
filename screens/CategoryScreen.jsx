@@ -6,7 +6,7 @@ import CategoryCard from '../components/CategoryCard';
 import Colors from '../constants/colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function CategoryScreen() {
+export default function CategoryScreen({ navigation }) {
   const categories = [
     { id: '1', iconName: 'document-text', label: 'Documentos', color: '#4b7bec' },
     { id: '2', iconName: 'home', label: 'Vivienda', color: '#2ecc71' },
@@ -17,6 +17,10 @@ export default function CategoryScreen() {
     { id: '7', iconName: 'people', label: 'Identidad', color: '#e67e22' },
     { id: '8', iconName: 'card', label: 'Impuestos', color: '#16a085' },
   ];
+
+  const handleCategoryPress = (category) => {
+    navigation.navigate('EnterpriseList');
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom']}>
@@ -53,13 +57,13 @@ export default function CategoryScreen() {
                       iconName={category.iconName}
                       label={category.label}
                       color={category.color}
-                      onPress={() => console.log(`Categoría seleccionada: ${category.label}`)}
+                      onPress={() => handleCategoryPress(category)}
                     />
                   ))}
                 </View>
               </ScrollView>
             </View>
-            <TouchableOpacity style={styles.cameraButton} onPress={() => console.log('Cámara presionada')}>
+            <TouchableOpacity style={styles.cameraButton} onPress={() => navigation.navigate('QrCam')}>
               <Ionicons name="camera" size={24} color={Colors.white} />
             </TouchableOpacity>
           </View>

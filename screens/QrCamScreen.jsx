@@ -52,8 +52,8 @@ export default function QrCamScreen({ navigation }) {
   const handleBarCodeScanned = ({ data }) => {
     // Aquí procesamos el código QR escaneado
     console.log(`Código QR escaneado: ${data}`);
-    // Navegar a la pantalla que corresponda según el QR escaneado
-    // navigation.navigate('Queue', { qrData: data });
+    // Navegar a la pantalla Ticket después de escanear
+    navigation.navigate('Ticket', { qrData: data });
   };
 
   if (!permission) {
@@ -130,7 +130,7 @@ export default function QrCamScreen({ navigation }) {
           {/* Botón de cámara */}
           <TouchableOpacity
             style={styles.cameraButton}
-            onPress={() => navigation.goBack()}
+            onPress={() => navigation.navigate('Ticket')}
           >
             <Ionicons name="camera" size={24} color={Colors.white} />
           </TouchableOpacity>
