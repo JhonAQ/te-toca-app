@@ -28,18 +28,13 @@ const QUEUE_ENDPOINTS = {
   detail: (queueId) => `${API_BASE_URL}/queues/${queueId}`,
 };
 
-// Endpoints para tickets
+// para  los tickets
 const TICKET_ENDPOINTS = {
   create: (queueId) => `${API_BASE_URL}/queues/${queueId}/join`,
   getDetails: (ticketId) => `${API_BASE_URL}/tickets/${ticketId}`,
   pause: (ticketId) => `${API_BASE_URL}/tickets/${ticketId}/pause`,
   resume: (ticketId) => `${API_BASE_URL}/tickets/${ticketId}/resume`,
   cancel: (ticketId) => `${API_BASE_URL}/tickets/${ticketId}/cancel`,
-};
-
-// Endpoints para QR
-const QR_ENDPOINTS = {
-  validate: `${API_BASE_URL}/qr/validate`,
 };
 
 export {
@@ -49,5 +44,4 @@ export {
   CATEGORY_ENDPOINTS,
   QUEUE_ENDPOINTS,
   TICKET_ENDPOINTS,
-  QR_ENDPOINTS,
 };
