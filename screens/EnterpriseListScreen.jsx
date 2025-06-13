@@ -1,47 +1,70 @@
-import React from 'react';
-import { View, Text, ImageBackground, StyleSheet, ScrollView, Image, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from 'react';
+import { View, Text, ImageBackground, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SearchBar from '../components/SearchBar';
 import EnterpriseCard from '../components/EnterpriseCard';
 import Colors from '../constants/colors';
+import enterpriseService from '../services/enterpriseService';
 
-export default function EnterpriseListScreen({ navigation }) {
-  // Datos de ejemplo para las empresas
-  const enterprises = [
-    {
-      id: '1',
-      name: 'Banco de Crédito del Perú',
-      address: 'Av. Independencia 123, Arequipa',
-      logoUrl: 'https://example.com/bcp-logo.png',
-      isAvailable: true,
-      activeQueues: 3
-    },
-    {
-      id: '2',
-      name: 'RENIEC',
-      address: 'Av. Dolores Prolongación 456, Arequipa',
-      logoUrl: 'https://example.com/reniec-logo.png',
-      isAvailable: true,
-      activeQueues: 2
-    },
-    {
-      id: '3',
-      name: 'Banco Continental',
-      address: 'Av. Ejército 789, Arequipa',
-      logoUrl: 'https://example.com/bbva-logo.png',
-      isAvailable: false,
-      activeQueues: 0
-    },
-    {
-      id: '4',
-      name: 'SUNAT',
-      address: 'Calle Jerusalén 234, Arequipa',
-      logoUrl: 'https://example.com/sunat-logo.png',
-      isAvailable: true,
-      activeQueues: 4
-    },
-  ];
+export default function EnterpriseListScreen({ navigation, route }) {
+  const [enterprises, setEnterprises] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchText, setSearchText] = useState('');
+
+  // Obtener el ID de la categoría si viene de CategoryScreen
+  const categoryId = route.params?.categoryId;
+
+  useEffect(() => {
+    loadEnterprises();
+  }, [categoryId]);
+
+  const loadEnterprises = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      let data;
+      if (categoryId) {
+        // Si hay categoría, filtramos por categoría
+        data = await enterpriseService.getEnterprisesByCategory(categoryId);
+        console.log("Agarrado por categoria")
+      } else {
+        // Si no hay categoría, obtenemos todas las empresas
+        data = await enterpriseService.getAllEnterprises();
+        console.log("Agarrado por todas las empresas")
+        console.log("Data:", data)
+      }
+
+      setEnterprises(data);
+    } catch (err) {
+      console.error('Error al cargar empresas:', err);
+      setError('No se pudieron cargar las empresas. Intenta de nuevo más tarde.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async (text) => {
+    setSearchText(text);
+
+    if (!text.trim()) {
+      // Si el texto de búsqueda está vacío, cargamos todas las empresas
+      loadEnterprises();
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const results = await enterpriseService.searchEnterprises(text);
+      setEnterprises(results);
+    } catch (err) {
+      console.error('Error en búsqueda:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom']}>
@@ -64,25 +87,52 @@ export default function EnterpriseListScreen({ navigation }) {
           <View style={styles.bottomSection}>
             <View style={styles.searchContainer}>
               <View style={styles.searchBarSection}>
-                <SearchBar placeholder="Buscar institución..." />
+                <SearchBar
+                  placeholder="Buscar institución..."
+                  onChangeText={handleSearch}
+                  value={searchText}
+                />
               </View>
             </View>
 
             <View style={styles.enterprisesSection}>
               <Text style={styles.sectionTitle}>Instituciones</Text>
-              <ScrollView style={styles.enterprisesContainer}>
-                {enterprises.map(enterprise => (
-                  <EnterpriseCard
-                    key={enterprise.id}
-                    name={enterprise.name}
-                    address={enterprise.address}
-                    logoUrl={enterprise.logoUrl}
-                    isAvailable={enterprise.isAvailable}
-                    activeQueues={enterprise.activeQueues}
-                    onPress={() => navigation.navigate('Enterprise', { enterpriseId: enterprise.id })}
-                  />
-                ))}
-              </ScrollView>
+
+              {loading ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="large" color={Colors.accent} />
+                </View>
+              ) : error ? (
+                <View style={styles.errorContainer}>
+                  <Text style={styles.errorText}>{error}</Text>
+                  <TouchableOpacity style={styles.retryButton} onPress={loadEnterprises}>
+                    <Text style={styles.retryButtonText}>Reintentar</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <ScrollView style={styles.enterprisesContainer}>
+                  {enterprises.length > 0 ? (
+                    enterprises.map(enterprise => (
+                      <EnterpriseCard
+                        key={enterprise.id}
+                        name={enterprise.name}
+                        address={enterprise.address}
+                        logoUrl={enterprise.logo}
+                        isAvailable={enterprise.isAvailable}
+                        activeQueues={enterprise.activeQueues}
+                        onPress={() => navigation.navigate('Enterprise', { enterpriseId: enterprise.id })}
+                      />
+                    ))
+                  ) : (
+                    <View style={styles.noResultsContainer}>
+                      <Ionicons name="search-outline" size={50} color={Colors.gray1} />
+                      <Text style={styles.noResultsText}>
+                        No se encontraron instituciones
+                      </Text>
+                    </View>
+                  )}
+                </ScrollView>
+              )}
             </View>
             <TouchableOpacity style={styles.cameraButton} onPress={() => navigation.navigate('QrCam')}>
               <Ionicons name="camera" size={24} color={Colors.white} />
@@ -165,5 +215,44 @@ const styles = StyleSheet.create({
   },
   enterprisesContainer: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: Colors.dark2,
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  retryButton: {
+    backgroundColor: Colors.accent,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+  },
+  retryButtonText: {
+    color: Colors.white,
+    fontWeight: 'bold',
+  },
+  noResultsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  noResultsText: {
+    fontSize: 16,
+    color: Colors.gray1,
+    textAlign: 'center',
+    marginTop: 10,
   },
 });

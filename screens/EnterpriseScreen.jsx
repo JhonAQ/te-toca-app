@@ -1,27 +1,66 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Colors from '../constants/colors';
+import enterpriseService from '../services/enterpriseService';
+import queueService from '../services/queueService';
 
 export default function EnterpriseScreen({ route, navigation }) {
-  // Datos de ejemplo - normalmente vendrían de la API o de las props
-  const enterprise = {
-    id: '1',
-    name: 'Banco de Crédito del Perú',
-    shortName: 'BCP',
-    type: 'Entidad bancaria',
-    logo: require('../assets/default-logo.png'), // Asegúrate de tener este recurso o usar una URL
-    address: 'Av. Independencia 123, Arequipa',
-    schedule: 'Lun - Vie: 9:00 - 18:00, Sáb: 9:00 - 13:00',
-    phone: '+51 954 123 456',
-    queues: [
-      { id: '1', name: 'Operaciones en ventanilla', icon: 'cash-outline', peopleWaiting: 12, avgTime: '15 min' },
-      { id: '2', name: 'Atención al cliente', icon: 'people-outline', peopleWaiting: 8, avgTime: '20 min' },
-      { id: '3', name: 'Apertura de cuentas', icon: 'document-text-outline', peopleWaiting: 5, avgTime: '25 min' },
-      { id: '4', name: 'Préstamos y créditos', icon: 'card-outline', peopleWaiting: 3, avgTime: '30 min' }
-    ]
+  const { enterpriseId } = route.params;
+
+  const [enterprise, setEnterprise] = useState(null);
+  const [queues, setQueues] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    loadEnterpriseData();
+  }, [enterpriseId]);
+
+  const loadEnterpriseData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Cargar datos de la empresa
+      const enterpriseData = await enterpriseService.getEnterpriseById(enterpriseId);
+      setEnterprise(enterpriseData);
+
+      // Cargar colas de la empresa
+      const queueData = await queueService.getQueuesByEnterprise(enterpriseId);
+      setQueues(queueData);
+    } catch (err) {
+      console.error('Error al cargar datos de la empresa:', err);
+      setError('No se pudieron cargar los datos. Intenta de nuevo más tarde.');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.loadingContainer} edges={['bottom', 'top']}>
+        <ActivityIndicator size="large" color={Colors.accent} />
+        <Text style={styles.loadingText}>Cargando información...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !enterprise) {
+    return (
+      <SafeAreaView style={styles.errorContainer} edges={['bottom', 'top']}>
+        <Ionicons name="alert-circle-outline" size={50} color={Colors.accent} />
+        <Text style={styles.errorText}>{error || 'No se encontró la empresa.'}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={loadEnterpriseData}>
+          <Text style={styles.retryButtonText}>Reintentar</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.backButtonText}>Volver</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom', 'top']}>
@@ -29,8 +68,8 @@ export default function EnterpriseScreen({ route, navigation }) {
         {/* Header - Logo y datos de la empresa */}
         <View style={styles.header}>
           <View style={styles.headerContent}>
-            <Image 
-              source={enterprise.logo} 
+            <Image
+              source={typeof enterprise.logo === 'string' ? { uri: enterprise.logo } : enterprise.logo}
               style={styles.logo}
               resizeMode="contain"
             />
@@ -47,12 +86,12 @@ export default function EnterpriseScreen({ route, navigation }) {
             <Ionicons name="location-outline" size={20} color={Colors.dark2} />
             <Text style={styles.infoText}>{enterprise.address}</Text>
           </View>
-          
+
           <View style={styles.infoItem}>
             <Ionicons name="time-outline" size={20} color={Colors.dark2} />
             <Text style={styles.infoText}>{enterprise.schedule}</Text>
           </View>
-          
+
           <View style={styles.infoItem}>
             <Ionicons name="call-outline" size={20} color={Colors.dark2} />
             <Text style={styles.infoText}>{enterprise.phone}</Text>
@@ -62,36 +101,46 @@ export default function EnterpriseScreen({ route, navigation }) {
         {/* Sección de trámites y colas */}
         <View style={styles.queuesSection}>
           <Text style={styles.queuesSectionTitle}>Selecciona un trámite y únete a la fila</Text>
-          
+
           <View style={styles.queuesContainer}>
-            {enterprise.queues.map(queue => (
-              <View key={queue.id} style={styles.queueCard}>
-                <View style={styles.queueCardContent}>
-                  <View style={styles.queueIconContainer}>
-                    <Ionicons name={queue.icon} size={28} color={Colors.dark2} />
-                  </View>
-                  
-                  <View style={styles.queueInfo}>
-                    <Text style={styles.queueName}>{queue.name}</Text>
-                    <View style={styles.queueStats}>
-                      <Text style={styles.queueStatText}>
-                        <Ionicons name="people-outline" size={14} color={Colors.gray1} /> {queue.peopleWaiting} en fila
-                      </Text>
-                      <Text style={styles.queueStatText}>
-                        <Ionicons name="time-outline" size={14} color={Colors.gray1} /> {queue.avgTime}
-                      </Text>
+            {queues.length > 0 ? (
+              queues.map(queue => (
+                <View key={queue.id} style={styles.queueCard}>
+                  <View style={styles.queueCardContent}>
+                    <View style={styles.queueIconContainer}>
+                      <Ionicons name={queue.icon} size={28} color={Colors.dark2} />
                     </View>
+
+                    <View style={styles.queueInfo}>
+                      <Text style={styles.queueName}>{queue.name}</Text>
+                      <View style={styles.queueStats}>
+                        <Text style={styles.queueStatText}>
+                          <Ionicons name="people-outline" size={14} color={Colors.gray1} /> {queue.peopleWaiting} en fila
+                        </Text>
+                        <Text style={styles.queueStatText}>
+                          <Ionicons name="time-outline" size={14} color={Colors.gray1} /> {queue.avgTime}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <TouchableOpacity
+                      style={styles.joinButton}
+                      onPress={() => navigation.navigate('Queue', {
+                        queueId: queue.id,
+                        enterpriseId: enterprise.id
+                      })}
+                    >
+                      <Text style={styles.joinButtonText}>Unirse</Text>
+                    </TouchableOpacity>
                   </View>
-                  
-                  <TouchableOpacity 
-                    style={styles.joinButton}
-                    onPress={() => navigation.navigate('Queue', { queueId: queue.id, enterpriseId: enterprise.id })}
-                  >
-                    <Text style={styles.joinButtonText}>Unirse</Text>
-                  </TouchableOpacity>
                 </View>
+              ))
+            ) : (
+              <View style={styles.noQueuesContainer}>
+                <Ionicons name="alert-circle-outline" size={40} color={Colors.gray1} />
+                <Text style={styles.noQueuesText}>No hay colas disponibles en este momento</Text>
               </View>
-            ))}
+            )}
           </View>
         </View>
       </ScrollView>
@@ -221,5 +270,61 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 14,
     fontWeight: '600',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.white,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: Colors.dark2,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.white,
+    padding: 20,
+  },
+  errorText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: Colors.dark2,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: Colors.accent,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  retryButtonText: {
+    color: Colors.white,
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  backButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+  },
+  backButtonText: {
+    color: Colors.dark2,
+    fontSize: 16,
+  },
+  noQueuesContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 30,
+  },
+  noQueuesText: {
+    fontSize: 16,
+    color: Colors.gray1,
+    textAlign: 'center',
+    marginTop: 10,
   },
 });

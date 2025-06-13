@@ -16,7 +16,7 @@ const EnterpriseCard = ({
         {/* Logo a la izquierda */}
         <View style={styles.logoContainer}>
           <Image
-            source={logoUrl ? { uri: logoUrl } : require('../assets/default-logo.png')}
+            source={logoUrl ? logoUrl : require('../assets/default-logo.png')}
             style={styles.logo}
             resizeMode="contain"
           />
