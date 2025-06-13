@@ -1,15 +1,13 @@
-// Definición de todas las APIs necesarias para la aplicación
+const API_BASE_URL = "https://api.tetoca.com/api/";
 
-const API_BASE_URL = "https://api.tetoca.com/v1"; // Cambia esto por la URL real cuando esté lista
-
-// Endpoints para autenticación
+// Para el auth
 const AUTH_ENDPOINTS = {
   login: `${API_BASE_URL}/auth/login`,
   register: `${API_BASE_URL}/auth/register`,
   forgotPassword: `${API_BASE_URL}/auth/forgot-password`,
 };
 
-// Endpoints para empresas
+// Para datos de empresas
 const ENTERPRISE_ENDPOINTS = {
   list: `${API_BASE_URL}/enterprises`,
   detail: (id) => `${API_BASE_URL}/enterprises/${id}`,
