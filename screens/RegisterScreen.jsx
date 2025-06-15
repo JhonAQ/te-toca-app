@@ -36,6 +36,7 @@ export default function RegisterScreen({ navigation }) {
   // Estados para mensajes de error
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
@@ -65,6 +66,11 @@ export default function RegisterScreen({ navigation }) {
     return emailRegex.test(email);
   };
 
+  const validatePhone = (num) => {
+    const phoneRegex = /^[1-9]\d{9}/
+    return phoneRegex.test(num);
+  };
+
   const handleRegister = () => {
     let isValid = true;
 
@@ -84,6 +90,16 @@ export default function RegisterScreen({ navigation }) {
       setEmailError('Ingrese un correo válido');
       isValid = false;
     } else {
+      setEmailError('');
+    }
+
+    if(!phone){
+      setPhoneError('El numero de celular es requerido');
+      isValid = false;
+    }else if(!validatePhone(phone)){
+      setPhoneError('El numero registrado es invalido');
+      isValid = false;
+    }else{
       setEmailError('');
     }
 
@@ -188,6 +204,23 @@ export default function RegisterScreen({ navigation }) {
                   />
                 </View>
                 {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+
+                {/* Campo para numero de celular */}
+                <View style={styles.inputWrapper}>
+                  <View style={styles.iconBackground}>
+                    <Ionicons name="call" size={18} color={Colors.white} />
+                  </View>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Número de celular"
+                    placeholderTextColor={Colors.gray1}
+                    value={phone}
+                    onChangeText={setPhone}
+                    keyboardType="number"
+                    autoCapitalize="none"
+                  />
+                </View>
+                {phoneError ? <Text style={styles.errorText}>{phoneError}</Text> : null}
 
                 {/* Campo para contraseña */}
                 <View style={styles.inputWrapper}>

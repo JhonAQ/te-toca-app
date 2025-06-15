@@ -195,9 +195,6 @@ export default function LoginScreen({ navigation }) {
                   <Ionicons name="logo-google" size={22} color={Colors.dark2} />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.socialButton}>
-                  <Ionicons name="logo-apple" size={22} color={Colors.dark2} />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.socialButton}>
                   <Ionicons name="logo-facebook" size={22} color={Colors.dark2} />
                 </TouchableOpacity>
               </View>
