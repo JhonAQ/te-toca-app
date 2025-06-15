@@ -29,7 +29,13 @@
       "edgeToEdgeEnabled": true,
       "navigationBarColor": "#FFFFFF",
       "navigationBarStyle": "light",
-      "softwareNavBarColor": "#FFFFFF"
+      "softwareNavBarColor": "#FFFFFF",
+      "package": "com.jhonAQ.TeTocaApp"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "da18d90e-bcd5-4688-bc7d-ea22edc6761d"
+      }
     }
   }
 }
