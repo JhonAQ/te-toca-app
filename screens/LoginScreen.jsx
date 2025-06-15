@@ -106,7 +106,6 @@ export default function LoginScreen({ navigation }) {
                 style={styles.logo}
                 resizeMode="contain"
               />
-              <Text style={styles.appName}>TeToca</Text>
               <Text style={styles.appSlogan}>Tu tiempo es valioso, organízalo</Text>
             </View>
 
@@ -258,8 +257,8 @@ const styles = StyleSheet.create({
     paddingTop: height * 0.05,
   },
   logo: {
-    width: 100,
-    height: 100,
+    width: 150,
+    height: 150,
     marginBottom: 8,
   },
   appName: {
