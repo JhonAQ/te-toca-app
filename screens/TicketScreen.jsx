@@ -19,7 +19,7 @@ import Colors from '../constants/colors';
 const { width, height } = Dimensions.get('window');
 
 export default function TicketScreen({ navigation, route }) {
-  // Normalmente estos datos vendrían de una API o de route.params
+  // Mock data
   const ticketData = {
     ticketId: 'AB25',
     enterprise: 'Banco de Crédito del Perú',
@@ -226,17 +226,6 @@ export default function TicketScreen({ navigation, route }) {
                 </View>
               </View>
 
-              {/* Código QR del ticket */}
-              {/* <View style={styles.qrCodeContainer}>
-                <Image
-                  source={require('../assets/qr-code-sample.png')}
-                  style={styles.qrCode}
-                  resizeMode="contain"
-                />
-                <Text style={styles.qrCodeText}>
-                  Presenta este código cuando sea tu turno
-                </Text>
-              </View> */}
             </View>
 
             {/* Borde ondulado inferior */}

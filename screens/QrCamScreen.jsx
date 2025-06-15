@@ -16,14 +16,13 @@ import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
 
 const { width } = Dimensions.get('window');
-const qrScanSize = width * 0.8; // 80% del ancho de la pantalla
-const cameraSize = qrScanSize * 0.7; // Cámara será el 80% del tamaño del marco
+const qrScanSize = width * 0.8;
+const cameraSize = qrScanSize * 0.7;
 
 export default function QrCamScreen({ navigation }) {
   const [permission, requestPermission] = useCameraPermissions();
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
-  // Configurar la animación de pulso del marco
   useEffect(() => {
     const pulseAnimation = Animated.sequence([
       Animated.timing(scaleAnim, {
@@ -50,9 +49,7 @@ export default function QrCamScreen({ navigation }) {
   }, []);
 
   const handleBarCodeScanned = ({ data }) => {
-    // Aquí procesamos el código QR escaneado
     console.log(`Código QR escaneado: ${data}`);
-    // Navegar a la pantalla Ticket después de escanear
     navigation.navigate('Ticket', { qrData: data });
   };
 

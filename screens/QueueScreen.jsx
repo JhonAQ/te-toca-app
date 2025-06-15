@@ -22,7 +22,7 @@ const InfoCard = ({ icon, title, value, color = Colors.accent }) => (
 );
 
 export default function QueueScreen({ route, navigation }) {
-  // Datos de ejemplo (normalmente vendrían de la API o props)
+  // Mock data
   const queueInfo = {
     enterpriseName: "Banco de Crédito del Perú",
     queueName: "Operaciones y Consultas",
@@ -30,7 +30,7 @@ export default function QueueScreen({ route, navigation }) {
     estimatedTime: "25 min",
     timePerPerson: "3 min",
     ticketNumber: "BX42",
-    logoUrl: require('../assets/default-logo.png'), // Asegúrate de tener una imagen por defecto
+    logoUrl: require('../assets/default-logo.png')
   };
 
   return (
@@ -49,13 +49,6 @@ export default function QueueScreen({ route, navigation }) {
                 resizeMode="contain"
               />
             </View>
-
-            {/* <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => navigation.goBack()}
-            >
-              <Ionicons name="arrow-back" size={24} color={Colors.white} />
-            </TouchableOpacity> */}
           </View>
 
           {/* Sección inferior blanca */}
