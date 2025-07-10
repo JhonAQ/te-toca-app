@@ -2,6 +2,12 @@ import axios from "axios";
 import { API_BASE_URL } from "./apiDefinition";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+// CONFIGURACIÓN GLOBAL PARA MODO MOCK
+export const MOCK_CONFIG = {
+  USE_MOCK_DATA: true, // Cambiar a false cuando el backend esté listo
+  MOCK_DELAY: 800, // Simular delay de red en milisegundos
+};
+
 // Crear una instancia de axios con configuración común
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -77,8 +83,26 @@ api.interceptors.response.use(
   }
 );
 
+// Función helper para simular respuestas de API
+export const createMockResponse = async (
+  data,
+  delay = MOCK_CONFIG.MOCK_DELAY
+) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(data);
+    }, delay);
+  });
+};
+
 // Función genérica para realizar peticiones GET
 const get = async (url, params = {}) => {
+  if (MOCK_CONFIG.USE_MOCK_DATA) {
+    console.log(`Mock GET: ${url}`, params);
+    // Los servicios individuales manejarán sus propios datos mock
+    throw new Error("Mock data should be handled by individual services");
+  }
+
   try {
     const response = await api.get(url, { params });
     return response.data;
@@ -90,6 +114,12 @@ const get = async (url, params = {}) => {
 
 // Función genérica para realizar peticiones POST
 const post = async (url, data = {}) => {
+  if (MOCK_CONFIG.USE_MOCK_DATA) {
+    console.log(`Mock POST: ${url}`, data);
+    // Los servicios individuales manejarán sus propios datos mock
+    throw new Error("Mock data should be handled by individual services");
+  }
+
   try {
     const response = await api.post(url, data);
     return response.data;
@@ -101,6 +131,12 @@ const post = async (url, data = {}) => {
 
 // Función genérica para realizar peticiones PUT
 const put = async (url, data = {}) => {
+  if (MOCK_CONFIG.USE_MOCK_DATA) {
+    console.log(`Mock PUT: ${url}`, data);
+    // Los servicios individuales manejarán sus propios datos mock
+    throw new Error("Mock data should be handled by individual services");
+  }
+
   try {
     const response = await api.put(url, data);
     return response.data;
@@ -112,6 +148,12 @@ const put = async (url, data = {}) => {
 
 // Función genérica para realizar peticiones DELETE
 const del = async (url) => {
+  if (MOCK_CONFIG.USE_MOCK_DATA) {
+    console.log(`Mock DELETE: ${url}`);
+    // Los servicios individuales manejarán sus propios datos mock
+    throw new Error("Mock data should be handled by individual services");
+  }
+
   try {
     const response = await api.delete(url);
     return response.data;
@@ -207,4 +249,7 @@ export default {
   getCurrentTenantId,
   setAuthToken,
   getAuthToken,
+  // Exportar configuración mock
+  MOCK_CONFIG,
+  createMockResponse,
 };

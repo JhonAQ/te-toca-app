@@ -1,29 +1,23 @@
-import apiService from "./apiService";
+import apiService, { MOCK_CONFIG, createMockResponse } from "./apiService";
 import { ENTERPRISE_ENDPOINTS, TENANT_ENDPOINTS } from "./apiDefinition";
 import { Enterprise } from "../models";
-
-// Variable para controlar si usamos datos mock o la API real
-const USE_MOCK_DATA = false;
+import { mockEnterprises, searchInArray } from "./mockData";
 
 // Servicio para operaciones relacionadas con empresas
 const enterpriseService = {
   // Obtener todas las empresas
   async getAllEnterprises() {
-    if (USE_MOCK_DATA) {
-      // Usar mockEnterprises existente
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(mockEnterprises.map((data) => new Enterprise(data)));
-        }, 500);
+    if (MOCK_CONFIG.USE_MOCK_DATA) {
+      console.log("🔄 Mock Get All Enterprises");
+
+      return createMockResponse(() => {
+        return mockEnterprises.map((data) => new Enterprise(data));
       });
     }
 
     try {
       const response = await apiService.get(ENTERPRISE_ENDPOINTS.list);
-
-      // La API podría devolver una estructura paginada
       const enterprises = response.data || response;
-
       return enterprises.map((data) => new Enterprise(data));
     } catch (error) {
       console.error("Error al obtener empresas:", error);
@@ -33,17 +27,21 @@ const enterpriseService = {
 
   // Obtener una empresa por ID
   async getEnterpriseById(enterpriseId) {
-    if (USE_MOCK_DATA) {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          const enterprise = mockEnterprises.find((e) => e.id === enterpriseId);
-          if (enterprise) {
-            resolve(new Enterprise(enterprise));
-          } else {
-            reject(new Error("Empresa no encontrada"));
-          }
-        }, 300);
-      });
+    if (MOCK_CONFIG.USE_MOCK_DATA) {
+      console.log("🔄 Mock Get Enterprise By ID:", enterpriseId);
+
+      return createMockResponse(() => {
+        const enterprise = mockEnterprises.find((e) => e.id === enterpriseId);
+        if (!enterprise) {
+          throw {
+            response: {
+              status: 404,
+              data: { error: "Empresa no encontrada" },
+            },
+          };
+        }
+        return new Enterprise(enterprise);
+      }, 500);
     }
 
     try {
@@ -59,17 +57,17 @@ const enterpriseService = {
 
   // Buscar empresas por texto
   async searchEnterprises(searchText) {
-    if (USE_MOCK_DATA) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const results = mockEnterprises.filter(
-            (e) =>
-              e.name.toLowerCase().includes(searchText.toLowerCase()) ||
-              e.address.toLowerCase().includes(searchText.toLowerCase())
-          );
-          resolve(results.map((data) => new Enterprise(data)));
-        }, 300);
-      });
+    if (MOCK_CONFIG.USE_MOCK_DATA) {
+      console.log("🔄 Mock Search Enterprises:", searchText);
+
+      return createMockResponse(() => {
+        const results = searchInArray(
+          mockEnterprises,
+          searchText,
+          ["name", "address", "type"]
+        );
+        return results.map((data) => new Enterprise(data));
+      }, 600);
     }
 
     try {
@@ -77,9 +75,7 @@ const enterpriseService = {
         q: searchText,
       });
 
-      // La API podría devolver una estructura paginada
       const results = response.data || response;
-
       return results.map((data) => new Enterprise(data));
     } catch (error) {
       console.error("Error al buscar empresas:", error);
@@ -89,12 +85,32 @@ const enterpriseService = {
 
   // Obtener empresas por categoría
   async getEnterprisesByCategory(categoryId) {
-    if (USE_MOCK_DATA) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          // En modo mock, simplemente devolvemos todas las empresas
-          resolve(mockEnterprises.map((data) => new Enterprise(data)));
-        }, 300);
+    if (MOCK_CONFIG.USE_MOCK_DATA) {
+      console.log("🔄 Mock Get Enterprises By Category:", categoryId);
+
+      return createMockResponse(() => {
+        // En modo mock, filtrar por tipo o devolver todas
+        let filteredEnterprises = mockEnterprises;
+
+        // Simular filtrado por categoría
+        if (categoryId === "1") {
+          // Documentos
+          filteredEnterprises = mockEnterprises.filter((e) =>
+            e.name.includes("RENIEC") || e.name.includes("SUNAT")
+          );
+        } else if (categoryId === "6") {
+          // Salud
+          filteredEnterprises = mockEnterprises.filter((e) =>
+            e.name.includes("Hospital")
+          );
+        } else if (categoryId === "5") {
+          // Empresas/Bancario
+          filteredEnterprises = mockEnterprises.filter((e) =>
+            e.name.includes("Banco")
+          );
+        }
+
+        return filteredEnterprises.map((data) => new Enterprise(data));
       });
     }
 
@@ -103,9 +119,7 @@ const enterpriseService = {
         ENTERPRISE_ENDPOINTS.byCategory(categoryId)
       );
 
-      // La API podría devolver una estructura paginada
       const enterprises = response.data || response;
-
       return enterprises.map((data) => new Enterprise(data));
     } catch (error) {
       console.error(
@@ -118,25 +132,26 @@ const enterpriseService = {
 
   // Obtener agencias de un tenant específico
   async getAgenciesByTenant(tenantId) {
-    if (USE_MOCK_DATA) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(mockEnterprises.map((data) => new Enterprise(data)));
-        }, 300);
+    if (MOCK_CONFIG.USE_MOCK_DATA) {
+      console.log("🔄 Mock Get Agencies By Tenant:", tenantId);
+
+      return createMockResponse(async () => {
+        await apiService.setTenantId(tenantId);
+
+        // Filtrar por tenantId
+        const agencies = mockEnterprises.filter((e) => e.tenantId === tenantId);
+        return agencies.map((data) => new Enterprise(data));
       });
     }
 
     try {
-      // Establecer el tenantId actual
       await apiService.setTenantId(tenantId);
 
       const response = await apiService.get(
         TENANT_ENDPOINTS.agencies(tenantId)
       );
 
-      // Extraer los datos de la estructura paginada
       const agencies = response.content || response;
-
       return agencies.map((data) => new Enterprise(data));
     } catch (error) {
       console.error(`Error al obtener agencias del tenant ${tenantId}:`, error);
@@ -146,21 +161,30 @@ const enterpriseService = {
 
   // Obtener detalles de una agencia en un tenant específico
   async getAgencyDetail(tenantId, agencyId) {
-    if (USE_MOCK_DATA) {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          const enterprise = mockEnterprises.find((e) => e.id === agencyId);
-          if (enterprise) {
-            resolve(new Enterprise(enterprise));
-          } else {
-            reject(new Error("Agencia no encontrada"));
-          }
-        }, 300);
+    if (MOCK_CONFIG.USE_MOCK_DATA) {
+      console.log("🔄 Mock Get Agency Detail:", { tenantId, agencyId });
+
+      return createMockResponse(async () => {
+        await apiService.setTenantId(tenantId);
+
+        const enterprise = mockEnterprises.find(
+          (e) => e.id === agencyId && e.tenantId === tenantId
+        );
+
+        if (!enterprise) {
+          throw {
+            response: {
+              status: 404,
+              data: { error: "Agencia no encontrada" },
+            },
+          };
+        }
+
+        return new Enterprise(enterprise);
       });
     }
 
     try {
-      // Establecer el tenantId actual
       await apiService.setTenantId(tenantId);
 
       const response = await apiService.get(
@@ -177,73 +201,5 @@ const enterpriseService = {
     }
   },
 };
-
-// Datos mock para usar durante el desarrollo (mantenidos para compatibilidad)
-const mockEnterprises = [
-  {
-    id: "1",
-    name: "Banco de Crédito del Perú",
-    shortName: "BCP",
-    type: "Entidad bancaria",
-    logo: require("../assets/default-logo.png"),
-    address: "Av. Independencia 123, Arequipa",
-    schedule: "Lun - Vie: 9:00 - 18:00, Sáb: 9:00 - 13:00",
-    phone: "+51 954 123 456",
-    isAvailable: true,
-    activeQueues: 3,
-    queues: [
-      {
-        id: "1",
-        name: "Operaciones en ventanilla",
-        icon: "cash-outline",
-        peopleWaiting: 12,
-        avgTime: "15 min",
-      },
-      {
-        id: "2",
-        name: "Atención al cliente",
-        icon: "people-outline",
-        peopleWaiting: 8,
-        avgTime: "20 min",
-      },
-      {
-        id: "3",
-        name: "Apertura de cuentas",
-        icon: "document-text-outline",
-        peopleWaiting: 5,
-        avgTime: "25 min",
-      },
-    ],
-  },
-  {
-    id: "2",
-    name: "RENIEC",
-    address: "Av. Dolores Prolongación 456, Arequipa",
-    shortName: "RENIEC",
-    type: "Entidad gubernamental",
-    logo: require("../assets/default-logo.png"),
-    schedule: "Lun - Vie: 8:00 - 17:00",
-    phone: "+51 954 789 123",
-    isAvailable: true,
-    activeQueues: 2,
-    queues: [
-      {
-        id: "4",
-        name: "Trámites generales",
-        icon: "document-outline",
-        peopleWaiting: 20,
-        avgTime: "35 min",
-      },
-      {
-        id: "5",
-        name: "DNI y pasaportes",
-        icon: "card-outline",
-        peopleWaiting: 15,
-        avgTime: "25 min",
-      },
-    ],
-  },
-  // Más empresas mock...
-];
 
 export default enterpriseService;

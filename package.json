@@ -4,9 +4,15 @@
   "main": "index.js",
   "scripts": {
     "start": "expo start",
+    "start:mock": "EXPO_PUBLIC_USE_MOCK=true expo start",
+    "start:api": "EXPO_PUBLIC_USE_MOCK=false expo start",
     "android": "expo run:android",
+    "android:mock": "EXPO_PUBLIC_USE_MOCK=true expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "ios:mock": "EXPO_PUBLIC_USE_MOCK=true expo run:ios",
+    "web": "expo start --web",
+    "build:android": "eas build --platform android",
+    "build:ios": "eas build --platform ios"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
@@ -42,5 +48,18 @@
     "tailwindcss": "^3.3.2",
     "typescript": "~5.8.3"
   },
-  "private": true
+  "private": true,
+  "expo": {
+    "name": "TeToca",
+    "slug": "tetoca-app",
+    "version": "1.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "extra": {
+      "useMockData": true
+    }
+  }
 }

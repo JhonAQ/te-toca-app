@@ -1,51 +1,89 @@
-import apiService from "./apiService";
+import apiService, { MOCK_CONFIG, createMockResponse } from "./apiService";
 import { TICKET_ENDPOINTS, TENANT_ENDPOINTS } from "./apiDefinition";
 import { Ticket } from "../models";
-import * as Notifications from "expo-notifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-// Variable para controlar si usamos datos mock o la API real
-const USE_MOCK_DATA = false;
-
-// Datos mock para usar durante el desarrollo (mantener para compatibilidad)
-const mockTicket = {
-  id: "123456",
-  ticketId: "AB25",
-  queueId: "1",
-  enterpriseId: "1",
-  enterpriseName: "Banco de Crédito del Perú",
-  queueName: "Atención al Cliente",
-  issueDate: "15 de Mayo, 2023",
-  issueTime: "10:45 AM",
-  status: "waiting",
-  position: 8,
-  currentTicket: "AB17",
-  waitTime: "35 min",
-  peopleTime: "4 min",
-};
+import {
+  mockTickets,
+  mockQueuesByEnterprise,
+  mockEnterprises,
+  generateId,
+  generateTicketNumber,
+} from "./mockData";
 
 // Servicio para operaciones relacionadas con tickets
 const ticketService = {
   // Crear un nuevo ticket (unirse a una cola)
   async joinQueue(queueId, tenantId = null) {
-    if (USE_MOCK_DATA) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(
-            new Ticket({
-              ...mockTicket,
-              queueId,
-              ticketId: `AB${Math.floor(Math.random() * 100)}`,
-            })
+    if (MOCK_CONFIG.USE_MOCK_DATA) {
+      console.log("🔄 Mock Join Queue:", { queueId, tenantId });
+
+      return createMockResponse(async () => {
+        // Buscar información de la cola
+        let queueInfo = null;
+        let enterpriseInfo = null;
+
+        for (const enterpriseId in mockQueuesByEnterprise) {
+          const queue = mockQueuesByEnterprise[enterpriseId].find(
+            (q) => q.id === queueId
           );
-        }, 500);
-      });
+          if (queue) {
+            queueInfo = queue;
+            enterpriseInfo = mockEnterprises.find((e) => e.id === enterpriseId);
+            break;
+          }
+        }
+
+        if (!queueInfo) {
+          throw {
+            response: {
+              status: 404,
+              data: { error: "Cola no encontrada" },
+            },
+          };
+        }
+
+        // Crear nuevo ticket
+        const newTicket = {
+          id: generateId(),
+          number: generateTicketNumber(queueId),
+          queueId: queueId,
+          enterpriseId: queueInfo.enterpriseId,
+          enterpriseName: enterpriseInfo?.name || "Empresa",
+          queueName: queueInfo.name,
+          customerName: "Usuario Actual",
+          customerPhone: "987654321",
+          customerEmail: "usuario@email.com",
+          serviceType: queueInfo.description || queueInfo.name,
+          priority: "normal",
+          status: "waiting",
+          position: queueInfo.peopleWaiting + 1,
+          estimatedWaitTime:
+            queueInfo.averageWaitTime * (queueInfo.peopleWaiting + 1),
+          actualWaitTime: 0,
+          serviceTime: 0,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          calledAt: null,
+          completedAt: null,
+          cancelledAt: null,
+          skippedAt: null,
+          notes: "",
+          reason: "",
+        };
+
+        // Agregar ticket a datos mock
+        mockTickets.push(newTicket);
+
+        // Actualizar contador de personas en espera
+        queueInfo.peopleWaiting += 1;
+
+        return new Ticket(newTicket);
+      }, 800);
     }
 
     try {
       let response;
 
-      // Obtener el token de notificaciones
       let pushToken = null;
       try {
         pushToken = await AsyncStorage.getItem("pushToken");
@@ -54,22 +92,18 @@ const ticketService = {
       }
 
       if (tenantId) {
-        // Usar la API multitenant
         await apiService.setTenantId(tenantId);
         response = await apiService.post(
           TENANT_ENDPOINTS.joinQueue(tenantId, queueId),
           { pushToken }
         );
       } else {
-        // Usar la API estándar
         response = await apiService.post(TICKET_ENDPOINTS.create(queueId), {
           pushToken,
         });
       }
 
-      // Transformar la respuesta al formato esperado por el modelo Ticket
       const ticketData = transformApiTicketToModel(response);
-
       return new Ticket(ticketData);
     } catch (error) {
       console.error(`Error al unirse a la cola ${queueId}:`, error);
@@ -79,17 +113,23 @@ const ticketService = {
 
   // Obtener detalles de un ticket
   async getTicketDetails(ticketId) {
-    if (USE_MOCK_DATA) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(
-            new Ticket({
-              ...mockTicket,
-              ticketId,
-            })
-          );
-        }, 300);
-      });
+    if (MOCK_CONFIG.USE_MOCK_DATA) {
+      console.log("🔄 Mock Get Ticket Details:", ticketId);
+
+      return createMockResponse(() => {
+        const ticket = mockTickets.find((t) => t.id === ticketId);
+
+        if (!ticket) {
+          throw {
+            response: {
+              status: 404,
+              data: { error: "Ticket no encontrado" },
+            },
+          };
+        }
+
+        return new Ticket(ticket);
+      }, 300);
     }
 
     try {
@@ -97,9 +137,7 @@ const ticketService = {
         TICKET_ENDPOINTS.getDetails(ticketId)
       );
 
-      // Transformar la respuesta al formato esperado por el modelo Ticket
       const ticketData = transformApiTicketToModel(response);
-
       return new Ticket(ticketData);
     } catch (error) {
       console.error(`Error al obtener detalles del ticket ${ticketId}:`, error);
@@ -109,26 +147,32 @@ const ticketService = {
 
   // Pausar un ticket
   async pauseTicket(ticketId) {
-    if (USE_MOCK_DATA) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(
-            new Ticket({
-              ...mockTicket,
-              ticketId,
-              status: "paused",
-            })
-          );
-        }, 300);
-      });
+    if (MOCK_CONFIG.USE_MOCK_DATA) {
+      console.log("🔄 Mock Pause Ticket:", ticketId);
+
+      return createMockResponse(() => {
+        const ticket = mockTickets.find((t) => t.id === ticketId);
+
+        if (!ticket) {
+          throw {
+            response: {
+              status: 404,
+              data: { error: "Ticket no encontrado" },
+            },
+          };
+        }
+
+        // Actualizar estado del ticket
+        ticket.status = "paused";
+        ticket.updatedAt = new Date().toISOString();
+
+        return new Ticket(ticket);
+      }, 400);
     }
 
     try {
       const response = await apiService.put(TICKET_ENDPOINTS.pause(ticketId));
-
-      // Transformar la respuesta al formato esperado por el modelo Ticket
       const ticketData = transformApiTicketToModel(response);
-
       return new Ticket(ticketData);
     } catch (error) {
       console.error(`Error al pausar ticket ${ticketId}:`, error);
@@ -138,26 +182,32 @@ const ticketService = {
 
   // Reanudar un ticket pausado
   async resumeTicket(ticketId) {
-    if (USE_MOCK_DATA) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(
-            new Ticket({
-              ...mockTicket,
-              ticketId,
-              status: "waiting",
-            })
-          );
-        }, 300);
-      });
+    if (MOCK_CONFIG.USE_MOCK_DATA) {
+      console.log("🔄 Mock Resume Ticket:", ticketId);
+
+      return createMockResponse(() => {
+        const ticket = mockTickets.find((t) => t.id === ticketId);
+
+        if (!ticket) {
+          throw {
+            response: {
+              status: 404,
+              data: { error: "Ticket no encontrado" },
+            },
+          };
+        }
+
+        // Actualizar estado del ticket
+        ticket.status = "waiting";
+        ticket.updatedAt = new Date().toISOString();
+
+        return new Ticket(ticket);
+      }, 400);
     }
 
     try {
       const response = await apiService.put(TICKET_ENDPOINTS.resume(ticketId));
-
-      // Transformar la respuesta al formato esperado por el modelo Ticket
       const ticketData = transformApiTicketToModel(response);
-
       return new Ticket(ticketData);
     } catch (error) {
       console.error(`Error al reanudar ticket ${ticketId}:`, error);
@@ -167,12 +217,41 @@ const ticketService = {
 
   // Cancelar un ticket
   async cancelTicket(ticketId) {
-    if (USE_MOCK_DATA) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(true); // Simulamos una cancelación exitosa
-        }, 300);
-      });
+    if (MOCK_CONFIG.USE_MOCK_DATA) {
+      console.log("🔄 Mock Cancel Ticket:", ticketId);
+
+      return createMockResponse(() => {
+        const ticketIndex = mockTickets.findIndex((t) => t.id === ticketId);
+
+        if (ticketIndex === -1) {
+          throw {
+            response: {
+              status: 404,
+              data: { error: "Ticket no encontrado" },
+            },
+          };
+        }
+
+        const ticket = mockTickets[ticketIndex];
+
+        // Actualizar estado del ticket
+        ticket.status = "cancelled";
+        ticket.cancelledAt = new Date().toISOString();
+        ticket.updatedAt = new Date().toISOString();
+
+        // Reducir contador de personas en espera
+        for (const enterpriseId in mockQueuesByEnterprise) {
+          const queue = mockQueuesByEnterprise[enterpriseId].find(
+            (q) => q.id === ticket.queueId
+          );
+          if (queue && queue.peopleWaiting > 0) {
+            queue.peopleWaiting -= 1;
+            break;
+          }
+        }
+
+        return true;
+      }, 500);
     }
 
     try {
@@ -184,13 +263,49 @@ const ticketService = {
     }
   },
 
+  // Obtener tickets del usuario actual
+  async getMyTickets() {
+    if (MOCK_CONFIG.USE_MOCK_DATA) {
+      console.log("🔄 Mock Get My Tickets");
+
+      return createMockResponse(() => {
+        // Retornar tickets activos del usuario
+        const activeTickets = mockTickets.filter(
+          (t) =>
+            t.status === "waiting" ||
+            t.status === "called" ||
+            t.status === "paused"
+        );
+
+        return activeTickets.map((data) => new Ticket(data));
+      }, 600);
+    }
+
+    try {
+      const response = await apiService.get(TICKET_ENDPOINTS.myTickets);
+      const tickets = response.data || response;
+      return tickets.map((data) => new Ticket(transformApiTicketToModel(data)));
+    } catch (error) {
+      console.error("Error al obtener mis tickets:", error);
+      throw error;
+    }
+  },
+
   // Registrar token de notificaciones
   async registerPushToken(token) {
     try {
       await AsyncStorage.setItem("pushToken", token);
+
+      if (MOCK_CONFIG.USE_MOCK_DATA) {
+        console.log("🔄 Mock Register Push Token:", token);
+        return true;
+      }
+
+      // Si no es modo mock, enviar al backend
+      await apiService.post(USER_ENDPOINTS.registerPushToken, { token });
       return true;
     } catch (error) {
-      console.error("Error al guardar token de notificaciones:", error);
+      console.error("Error al registrar token de notificaciones:", error);
       return false;
     }
   },
@@ -210,7 +325,7 @@ function transformApiTicketToModel(apiResponse) {
 
     return {
       id: id.toString(),
-      ticketId: `T-${orderNumber}`, // Generar un ID amigable
+      ticketId: `T-${orderNumber}`,
       queueId: queueRegistration.queue.id.toString(),
       enterpriseId: queueRegistration.queue.companyAgency?.id.toString() || "",
       enterpriseName: queueRegistration.queue.companyAgency?.name || "Agencia",
@@ -226,9 +341,9 @@ function transformApiTicketToModel(apiResponse) {
           ? "attended"
           : "cancelled",
       position: orderNumber,
-      currentTicket: `T-${orderNumber - 1}`, // Ejemplo, idealmente debería venir de la API
-      waitTime: "Estimando...", // Idealmente debería venir de la API
-      peopleTime: "Estimando...", // Idealmente debería venir de la API
+      currentTicket: `T-${orderNumber - 1}`,
+      waitTime: "Estimando...",
+      peopleTime: "Estimando...",
     };
   }
 
