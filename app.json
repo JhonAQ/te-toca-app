@@ -13,7 +13,8 @@
           },
           "imageWidth": 400
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "name": "TeToca",
     "icon": "./assets/favicon.png",
