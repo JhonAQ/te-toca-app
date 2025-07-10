@@ -9,6 +9,10 @@ import {
   Dimensions,
   Alert,
   ActivityIndicator,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,15 +25,15 @@ const { width, height } = Dimensions.get('window');
 
 export default function LoginScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useContext(AuthContext);
 
   const fadeAnim = useState(new Animated.Value(0))[0];
   const translateY = useState(new Animated.Value(50))[0];
 
   useEffect(() => {
-    // Inicializar Google Sign In
-    authService.initializeGoogleSignIn();
-
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -44,121 +48,153 @@ export default function LoginScreen({ navigation }) {
     ]).start();
   }, []);
 
-  const handleGoogleLogin = async () => {
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Error', 'Por favor ingresa tu email y contraseña');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const user = await authService.loginWithGoogle();
+      const user = await authService.login(email, password);
       login(user);
       navigation.navigate('Category');
     } catch (error) {
-      console.error('Error al iniciar sesión con Google:', error);
-      let errorMessage = 'No se pudo iniciar sesión con Google. Por favor, inténtalo de nuevo.';
-      
-      if (error.message.includes('cancelada')) {
-        errorMessage = 'Autenticación cancelada';
+      console.error('Error al iniciar sesión:', error);
+      let errorMessage = 'Error al iniciar sesión. Por favor, inténtalo de nuevo.';
+
+      if (error.response?.status === 401) {
+        errorMessage = 'Email o contraseña incorrectos';
+      } else if (error.response?.status === 404) {
+        errorMessage = 'Usuario no encontrado';
       }
-      
-      Alert.alert(
-        'Error de autenticación',
-        errorMessage,
-        [{ text: 'OK' }]
-      );
+
+      Alert.alert('Error de autenticación', errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleAuthSessionLogin = async () => {
-    // Ahora ambos métodos son iguales
-    handleGoogleLogin();
-  };
-
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom']}>
-      <View style={styles.container}>
-        {/* Fondo con gradiente */}
-        <LinearGradient
-          colors={[Colors.dark1, Colors.dark3, Colors.accent]}
-          style={styles.gradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        />
-
-        {/* Elementos decorativos */}
-        <View style={styles.decorativeCircle1} />
-        <View style={styles.decorativeCircle2} />
-
-        {/* Logo y título principal */}
-        <View style={styles.headerSection}>
-          <Image
-            source={require('../assets/TeTocaLogo.png')}
-            style={styles.logo}
-            resizeMode="contain"
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          {/* Fondo con gradiente */}
+          <LinearGradient
+            colors={[Colors.dark1, Colors.dark3, Colors.accent]}
+            style={styles.gradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
           />
-          <Text style={styles.appSlogan}>Tu tiempo es valioso, organízalo</Text>
-        </View>
 
-        {/* Contenedor de autenticación animado */}
-        <Animated.View
-          style={[
-            styles.authContainer,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: translateY }]
-            }
-          ]}
-        >
-          <Text style={styles.authTitle}>Iniciar Sesión</Text>
-          <Text style={styles.authSubtitle}>
-            Accede con tu cuenta de Google para continuar
-          </Text>
+          {/* Elementos decorativos */}
+          <View style={styles.decorativeCircle1} />
+          <View style={styles.decorativeCircle2} />
 
-          {/* Botón de Google Sign In */}
-          <TouchableOpacity
-            style={styles.googleButton}
-            onPress={handleGoogleLogin}
-            activeOpacity={0.8}
-            disabled={isLoading}
+          {/* Logo y título principal */}
+          <View style={styles.headerSection}>
+            <Image
+              source={require('../assets/TeTocaLogo.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={styles.appSlogan}>Tu tiempo es valioso, organízalo</Text>
+          </View>
+
+          {/* Contenedor de autenticación animado */}
+          <Animated.View
+            style={[
+              styles.authContainer,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: translateY }]
+              }
+            ]}
           >
-            <View style={styles.googleButtonContent}>
-              <Ionicons name="logo-google" size={24} color="#4285F4" />
-              <Text style={styles.googleButtonText}>
-                {isLoading ? 'Iniciando sesión...' : 'Continuar con Google'}
-              </Text>
-              {isLoading && (
-                <ActivityIndicator size="small" color={Colors.accent} style={{ marginLeft: 10 }} />
-              )}
+            <Text style={styles.authTitle}>Iniciar Sesión</Text>
+            <Text style={styles.authSubtitle}>
+              Ingresa tu email y contraseña para continuar
+            </Text>
+
+            {/* Campo de email */}
+            <View style={styles.inputContainer}>
+              <Ionicons name="mail-outline" size={20} color={Colors.gray1} style={styles.inputIcon} />
+              <TextInput
+                style={styles.textInput}
+                placeholder="Email"
+                placeholderTextColor={Colors.gray1}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+              />
             </View>
-          </TouchableOpacity>
 
-          {/* Botón alternativo con AuthSession - ahora oculto o con texto diferente */}
-          <TouchableOpacity
-            style={styles.alternativeButton}
-            onPress={() => navigation.navigate('Register')}
-            activeOpacity={0.8}
-            disabled={isLoading}
-          >
-            <Text style={styles.alternativeButtonText}>
-              ¿Primera vez? Registrarse
-            </Text>
-          </TouchableOpacity>
+            {/* Campo de contraseña */}
+            <View style={styles.inputContainer}>
+              <Ionicons name="lock-closed-outline" size={20} color={Colors.gray1} style={styles.inputIcon} />
+              <TextInput
+                style={styles.textInput}
+                placeholder="Contraseña"
+                placeholderTextColor={Colors.gray1}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                autoComplete="password"
+              />
+              <TouchableOpacity
+                style={styles.eyeIcon}
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color={Colors.gray1}
+                />
+              </TouchableOpacity>
+            </View>
 
-          {/* Información adicional */}
-          <View style={styles.infoContainer}>
-            <Text style={styles.infoText}>
-              Al continuar, aceptas nuestros términos de servicio y política de privacidad
-            </Text>
-          </View>
-
-          {/* Enlace para registro manual */}
-          <View style={styles.registerContainer}>
-            <Text style={styles.registerText}>¿Problemas para acceder? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-              <Text style={styles.registerLink}>Contactar soporte</Text>
+            {/* Botón de login */}
+            <TouchableOpacity
+              style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+              onPress={handleLogin}
+              disabled={isLoading}
+            >
+              <LinearGradient
+                colors={[Colors.accent, Colors.lavanda]}
+                style={styles.loginButtonGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              >
+                {isLoading ? (
+                  <ActivityIndicator size="small" color={Colors.white} />
+                ) : (
+                  <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+                )}
+              </LinearGradient>
             </TouchableOpacity>
-          </View>
-        </Animated.View>
-      </View>
+
+            {/* Información adicional */}
+            <View style={styles.infoContainer}>
+              <Text style={styles.infoText}>
+                Al continuar, aceptas nuestros términos de servicio y política de privacidad
+              </Text>
+            </View>
+
+            {/* Enlace para registro */}
+            <View style={styles.registerContainer}>
+              <Text style={styles.registerText}>¿No tienes cuenta? </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                <Text style={styles.registerLink}>Regístrate aquí</Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -170,6 +206,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
+  },
+  scrollContainer: {
+    flexGrow: 1,
   },
   gradient: {
     position: 'absolute',
@@ -240,43 +279,48 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     lineHeight: 22,
   },
-  googleButton: {
-    height: 55,
-    borderRadius: 12,
-    backgroundColor: Colors.white,
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: Colors.gray2,
-    marginBottom: 15,
-    elevation: 2,
-    shadowColor: Colors.dark1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  googleButtonContent: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  googleButtonText: {
-    color: Colors.dark2,
-    fontWeight: '600',
-    fontSize: 16,
-    marginLeft: 12,
-  },
-  alternativeButton: {
-    height: 45,
     borderRadius: 12,
-    backgroundColor: Colors.gray3,
+    marginBottom: 15,
+    paddingHorizontal: 15,
+    backgroundColor: Colors.white,
+    height: 55,
+  },
+  inputIcon: {
+    marginRight: 10,
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 16,
+    color: Colors.dark2,
+    paddingVertical: 0,
+  },
+  eyeIcon: {
+    padding: 5,
+  },
+  loginButton: {
+    height: 55,
+    borderRadius: 12,
+    marginTop: 10,
+    marginBottom: 20,
+    overflow: 'hidden',
+  },
+  loginButtonDisabled: {
+    opacity: 0.6,
+  },
+  loginButtonGradient: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
   },
-  alternativeButtonText: {
-    color: Colors.dark2,
-    fontSize: 14,
-    fontWeight: '500',
+  loginButtonText: {
+    color: Colors.white,
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   infoContainer: {
     marginVertical: 20,

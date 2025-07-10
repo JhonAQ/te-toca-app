@@ -20,12 +20,14 @@ api.interceptors.request.use(
         config.headers.Authorization = `Bearer ${token}`;
       }
 
-      // Agregar el tenantId si está disponible
+      // Agregar el tenantId si está disponible y es una ruta de tenant
       const tenantId = await AsyncStorage.getItem("currentTenantId");
       if (tenantId && config.url.includes("/tenant/")) {
         // Reemplaza el placeholder {tenantId} en la URL si existe
         config.url = config.url.replace("{tenantId}", tenantId);
       }
+
+      console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
     } catch (error) {
       console.error("Error al obtener el token o tenantId:", error);
     }
@@ -39,23 +41,38 @@ api.interceptors.request.use(
 // Interceptor para manejar respuestas y errores
 api.interceptors.response.use(
   (response) => {
+    console.log(`API Response: ${response.status} ${response.config.url}`);
     return response;
   },
   async (error) => {
     // Manejo de errores como token expirado, etc.
     if (error.response) {
-      const { status } = error.response;
+      const { status, data } = error.response;
+
+      console.error(`API Error: ${status} ${error.config.url}`, data);
 
       if (status === 401) {
         // Token expirado o inválido
         await AsyncStorage.removeItem("authToken");
-        // Podríamos usar un EventEmitter para notificar a la app que debe redirigir al login
-        // EventEmitter.emit('AUTH_ERROR', { type: 'UNAUTHORIZED' });
+        // Aquí podrías emitir un evento para redirigir al login
       } else if (status === 403) {
         // Permiso denegado
-        // EventEmitter.emit('AUTH_ERROR', { type: 'FORBIDDEN' });
+        console.error("Acceso denegado:", data);
+      } else if (status === 404) {
+        // Recurso no encontrado
+        console.error("Recurso no encontrado:", data);
+      } else if (status === 500) {
+        // Error interno del servidor
+        console.error("Error interno del servidor:", data);
       }
+    } else if (error.request) {
+      // Error de red o conexión
+      console.error("Error de conexión:", error.request);
+    } else {
+      // Error en la configuración de la petición
+      console.error("Error de configuración:", error.message);
     }
+
     return Promise.reject(error);
   }
 );
@@ -110,22 +127,40 @@ const handleApiError = (error) => {
 
   if (error.response) {
     // El servidor respondió con un código de estado fuera del rango 2xx
-    errorMessage =
-      error.response.data.message ||
-      `Error ${error.response.status}: ${error.response.statusText}`;
-    console.error("Error de respuesta API:", error.response.data);
+    const { status, data } = error.response;
+
+    switch (status) {
+      case 400:
+        errorMessage = data.error || "Solicitud incorrecta";
+        break;
+      case 401:
+        errorMessage = data.error || "No autorizado";
+        break;
+      case 403:
+        errorMessage = data.error || "Acceso denegado";
+        break;
+      case 404:
+        errorMessage = data.error || "Recurso no encontrado";
+        break;
+      case 409:
+        errorMessage = data.error || "Conflicto en los datos";
+        break;
+      case 500:
+        errorMessage = data.error || "Error interno del servidor";
+        break;
+      default:
+        errorMessage =
+          data.error || `Error ${status}: ${error.response.statusText}`;
+    }
   } else if (error.request) {
     // La solicitud fue realizada pero no se recibió respuesta
     errorMessage =
       "No se recibió respuesta del servidor. Verifica tu conexión a internet.";
-    console.error("Error sin respuesta:", error.request);
   } else {
     // Algo ocurrió en la configuración de la solicitud
     errorMessage = error.message;
-    console.error("Error de solicitud:", error.message);
   }
 
-  // Aquí podrías mostrar un toast o alerta con el error
   console.error("Error API:", errorMessage);
 };
 
@@ -133,14 +168,34 @@ const handleApiError = (error) => {
 const setTenantId = async (tenantId) => {
   if (tenantId) {
     await AsyncStorage.setItem("currentTenantId", tenantId);
+    console.log("Tenant ID configurado:", tenantId);
   } else {
     await AsyncStorage.removeItem("currentTenantId");
+    console.log("Tenant ID removido");
   }
 };
 
 // Obtener el tenant actual
 const getCurrentTenantId = async () => {
-  return await AsyncStorage.getItem("currentTenantId");
+  const tenantId = await AsyncStorage.getItem("currentTenantId");
+  return tenantId;
+};
+
+// Configurar el token de autenticación
+const setAuthToken = async (token) => {
+  if (token) {
+    await AsyncStorage.setItem("authToken", token);
+    console.log("Token de autenticación configurado");
+  } else {
+    await AsyncStorage.removeItem("authToken");
+    console.log("Token de autenticación removido");
+  }
+};
+
+// Obtener el token de autenticación actual
+const getAuthToken = async () => {
+  const token = await AsyncStorage.getItem("authToken");
+  return token;
 };
 
 export default {
@@ -150,4 +205,6 @@ export default {
   delete: del,
   setTenantId,
   getCurrentTenantId,
+  setAuthToken,
+  getAuthToken,
 };

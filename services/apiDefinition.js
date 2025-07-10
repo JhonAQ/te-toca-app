@@ -1,57 +1,60 @@
-// Definición de endpoints para la API de TeToca
+// Definición de endpoints para la API de TeToca - Aplicación Cliente
 
 // URL base de la API
-const API_BASE_URL = "https://localhost:8080/api";
+export const API_BASE_URL = "http://localhost:3000/api";
 
-// Endpoints para autenticación
+// Endpoints para autenticación de usuarios (clientes)
 export const AUTH_ENDPOINTS = {
-  oauth: "/auth/oauth", // POST - Autenticación OAuth (Google, Facebook, etc.)
+  login: "/auth/user/login", // POST - Login con email/contraseña
+  register: "/auth/user/register", // POST - Registro de nuevo usuario
+  logout: "/auth/user/logout", // POST - Cerrar sesión
 };
 
-// Endpoints para empresas
-const ENTERPRISE_ENDPOINTS = {
-  list: `${API_BASE_URL}/enterprises`,
-  detail: (id) => `${API_BASE_URL}/enterprises/${id}`,
-  search: `${API_BASE_URL}/enterprises/search`,
-  byCategory: (categoryId) =>
-    `${API_BASE_URL}/categories/${categoryId}/enterprises`,
+// Endpoints para empresas/tenants (público)
+export const ENTERPRISE_ENDPOINTS = {
+  list: "/public/companies", // GET - Lista de todas las empresas
+  detail: (id) => `/public/companies/${id}`, // GET - Detalles de una empresa específica
+  search: "/public/companies/search", // GET - Buscar empresas por nombre
+  byCategory: (categoryId) => `/public/categories/${categoryId}/companies`, // GET - Empresas por categoría
 };
 
-// Endpoints para categorías
-const CATEGORY_ENDPOINTS = {
-  list: `${API_BASE_URL}/categories`,
+// Endpoints para categorías (público)
+export const CATEGORY_ENDPOINTS = {
+  list: "/public/categories", // GET - Lista de todas las categorías
 };
 
-// Endpoints para colas
-const QUEUE_ENDPOINTS = {
+// Endpoints para colas (público)
+export const QUEUE_ENDPOINTS = {
   listByEnterprise: (enterpriseId) =>
-    `${API_BASE_URL}/enterprises/${enterpriseId}/queues`,
-  detail: (queueId) => `${API_BASE_URL}/queues/${queueId}`,
+    `/public/companies/${enterpriseId}/queues`, // GET - Colas por empresa
+  detail: (queueId) => `/public/queues/${queueId}`, // GET - Detalles de una cola
 };
 
-// Endpoints para tickets
-const TICKET_ENDPOINTS = {
-  create: (queueId) => `${API_BASE_URL}/queues/${queueId}/join`,
-  getDetails: (ticketId) => `${API_BASE_URL}/tickets/${ticketId}`,
-  pause: (ticketId) => `${API_BASE_URL}/tickets/${ticketId}/pause`,
-  resume: (ticketId) => `${API_BASE_URL}/tickets/${ticketId}/resume`,
-  cancel: (ticketId) => `${API_BASE_URL}/tickets/${ticketId}/cancel`,
+// Endpoints para tickets (autenticado)
+export const TICKET_ENDPOINTS = {
+  create: (queueId) => `/queues/${queueId}/join`, // POST - Unirse a una cola
+  getDetails: (ticketId) => `/tickets/${ticketId}`, // GET - Detalles de un ticket
+  pause: (ticketId) => `/tickets/${ticketId}/pause`, // PUT - Pausar ticket
+  resume: (ticketId) => `/tickets/${ticketId}/resume`, // PUT - Reanudar ticket
+  cancel: (ticketId) => `/tickets/${ticketId}/cancel`, // DELETE - Cancelar ticket
+  myTickets: "/user/tickets", // GET - Tickets del usuario actual
 };
 
-// Endpoints específicos para el manejo de tenant
-const TENANT_ENDPOINTS = {
-  agencies: (tenantId) => `${API_BASE_URL}/tenant/${tenantId}/public/agencies`,
-  agencyDetail: (tenantId, agencyId) =>
-    `${API_BASE_URL}/tenant/${tenantId}/public/agencies/${agencyId}`,
+// Endpoints para perfil de usuario (autenticado)
+export const USER_ENDPOINTS = {
+  profile: "/user/profile", // GET - Perfil del usuario
+  updateProfile: "/user/profile", // PUT - Actualizar perfil
+  notifications: "/user/notifications", // GET - Notificaciones del usuario
+  registerPushToken: "/user/push-token", // POST - Registrar token de notificaciones
+};
+
+// Endpoints específicos para el manejo de tenant (multitenant)
+export const TENANT_ENDPOINTS = {
+  companies: (tenantId) => `/tenant/${tenantId}/public/companies`,
+  companyDetail: (tenantId, companyId) =>
+    `/tenant/${tenantId}/public/companies/${companyId}`,
   joinQueue: (tenantId, queueId) =>
-    `${API_BASE_URL}/tenant/${tenantId}/queues/${queueId}/join`,
-};
-
-export {
-  API_BASE_URL,
-  ENTERPRISE_ENDPOINTS,
-  CATEGORY_ENDPOINTS,
-  QUEUE_ENDPOINTS,
-  TICKET_ENDPOINTS,
-  TENANT_ENDPOINTS,
+    `/tenant/${tenantId}/queues/${queueId}/join`,
+  queuesByCompany: (tenantId, companyId) =>
+    `/tenant/${tenantId}/public/companies/${companyId}/queues`,
 };

@@ -9,6 +9,10 @@ import {
   Dimensions,
   Alert,
   ActivityIndicator,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,6 +25,15 @@ const { width, height } = Dimensions.get('window');
 
 export default function RegisterScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { login } = useContext(AuthContext);
 
   // Animaciones
@@ -28,9 +41,6 @@ export default function RegisterScreen({ navigation }) {
   const translateY = useState(new Animated.Value(50))[0];
 
   useEffect(() => {
-    // Inicializar Google Sign In
-    authService.initializeGoogleSignIn();
-
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -45,19 +55,63 @@ export default function RegisterScreen({ navigation }) {
     ]).start();
   }, []);
 
-  const handleGoogleSignUp = async () => {
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const validateForm = () => {
+    if (!formData.name.trim()) {
+      Alert.alert('Error', 'Por favor ingresa tu nombre');
+      return false;
+    }
+    if (!formData.email.trim()) {
+      Alert.alert('Error', 'Por favor ingresa tu email');
+      return false;
+    }
+    if (!formData.password.trim()) {
+      Alert.alert('Error', 'Por favor ingresa una contraseña');
+      return false;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      Alert.alert('Error', 'Las contraseñas no coinciden');
+      return false;
+    }
+    if (formData.password.length < 6) {
+      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres');
+      return false;
+    }
+    return true;
+  };
+
+  const handleRegister = async () => {
+    if (!validateForm()) return;
+
     setIsLoading(true);
     try {
-      const user = await authService.loginWithGoogle();
+      const userData = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+      };
+
+      const user = await authService.register(userData);
       login(user);
       navigation.navigate('Category');
     } catch (error) {
-      console.error('Error al registrarse con Google:', error);
-      Alert.alert(
-        'Error de registro',
-        'No se pudo crear tu cuenta con Google. Por favor, inténtalo de nuevo.',
-        [{ text: 'OK' }]
-      );
+      console.error('Error al registrarse:', error);
+      let errorMessage = 'Error al crear la cuenta. Por favor, inténtalo de nuevo.';
+
+      if (error.response?.status === 409) {
+        errorMessage = 'Ya existe una cuenta con este email';
+      } else if (error.response?.status === 400) {
+        errorMessage = 'Datos inválidos. Por favor revisa la información';
+      }
+
+      Alert.alert('Error de registro', errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -65,106 +119,184 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom']}>
-      <View style={styles.container}>
-        {/* Fondo con gradiente */}
-        <LinearGradient
-          colors={[Colors.dark1, Colors.dark3, Colors.accent]}
-          style={styles.gradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        />
-
-        {/* Elementos decorativos */}
-        <View style={styles.decorativeCircle1} />
-        <View style={styles.decorativeCircle2} />
-
-        {/* Botón de regresar */}
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color={Colors.white} />
-        </TouchableOpacity>
-
-        {/* Logo y título principal */}
-        <View style={styles.headerSection}>
-          <Image
-            source={require('../assets/TeTocaLogo.png')}
-            style={styles.logo}
-            resizeMode="contain"
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          {/* Fondo con gradiente */}
+          <LinearGradient
+            colors={[Colors.dark1, Colors.dark3, Colors.accent]}
+            style={styles.gradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
           />
-          <Text style={styles.appSlogan}>Únete a la comunidad</Text>
-        </View>
 
-        {/* Contenedor de registro animado */}
-        <Animated.View
-          style={[
-            styles.registerContainer,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: translateY }]
-            }
-          ]}
-        >
-          <Text style={styles.registerTitle}>Crear Cuenta</Text>
-          <Text style={styles.registerSubtitle}>
-            Registrate con tu cuenta de Google para empezar a organizar tu tiempo
-          </Text>
+          {/* Elementos decorativos */}
+          <View style={styles.decorativeCircle1} />
+          <View style={styles.decorativeCircle2} />
 
-          {/* Botón de Google Sign Up */}
+          {/* Botón de regresar */}
           <TouchableOpacity
-            style={styles.googleButton}
-            onPress={handleGoogleSignUp}
-            activeOpacity={0.8}
-            disabled={isLoading}
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
           >
-            <View style={styles.googleButtonContent}>
-              <Ionicons name="logo-google" size={24} color="#4285F4" />
-              <Text style={styles.googleButtonText}>
-                {isLoading ? 'Creando cuenta...' : 'Registrarse con Google'}
-              </Text>
-              {isLoading && (
-                <ActivityIndicator size="small" color={Colors.accent} style={{ marginLeft: 10 }} />
-              )}
-            </View>
+            <Ionicons name="arrow-back" size={24} color={Colors.white} />
           </TouchableOpacity>
 
-          {/* Beneficios del registro */}
-          <View style={styles.benefitsContainer}>
-            <Text style={styles.benefitsTitle}>¿Por qué registrarte?</Text>
-
-            <View style={styles.benefitItem}>
-              <Ionicons name="time-outline" size={20} color={Colors.accent} />
-              <Text style={styles.benefitText}>Ahorra tiempo en filas</Text>
-            </View>
-
-            <View style={styles.benefitItem}>
-              <Ionicons name="notifications-outline" size={20} color={Colors.accent} />
-              <Text style={styles.benefitText}>Recibe notificaciones en tiempo real</Text>
-            </View>
-
-            <View style={styles.benefitItem}>
-              <Ionicons name="bookmark-outline" size={20} color={Colors.accent} />
-              <Text style={styles.benefitText}>Guarda tus lugares favoritos</Text>
-            </View>
+          {/* Logo y título principal */}
+          <View style={styles.headerSection}>
+            <Image
+              source={require('../assets/TeTocaLogo.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={styles.appSlogan}>Únete a la comunidad</Text>
           </View>
 
-          {/* Información adicional */}
-          <View style={styles.infoContainer}>
-            <Text style={styles.infoText}>
-              Al registrarte, aceptas nuestros términos de servicio y política de privacidad
+          {/* Contenedor de registro animado */}
+          <Animated.View
+            style={[
+              styles.registerContainer,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: translateY }]
+              }
+            ]}
+          >
+            <Text style={styles.registerTitle}>Crear Cuenta</Text>
+            <Text style={styles.registerSubtitle}>
+              Llena los campos para crear tu cuenta
             </Text>
-          </View>
 
-          {/* Enlace para login */}
-          <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>¿Ya tienes cuenta? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-              <Text style={styles.loginLink}>Inicia sesión</Text>
+            {/* Campo de nombre */}
+            <View style={styles.inputContainer}>
+              <Ionicons name="person-outline" size={20} color={Colors.gray1} style={styles.inputIcon} />
+              <TextInput
+                style={styles.textInput}
+                placeholder="Nombre completo"
+                placeholderTextColor={Colors.gray1}
+                value={formData.name}
+                onChangeText={(value) => handleInputChange('name', value)}
+                autoCapitalize="words"
+                autoComplete="name"
+              />
+            </View>
+
+            {/* Campo de email */}
+            <View style={styles.inputContainer}>
+              <Ionicons name="mail-outline" size={20} color={Colors.gray1} style={styles.inputIcon} />
+              <TextInput
+                style={styles.textInput}
+                placeholder="Email"
+                placeholderTextColor={Colors.gray1}
+                value={formData.email}
+                onChangeText={(value) => handleInputChange('email', value)}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+              />
+            </View>
+
+            {/* Campo de teléfono */}
+            <View style={styles.inputContainer}>
+              <Ionicons name="call-outline" size={20} color={Colors.gray1} style={styles.inputIcon} />
+              <TextInput
+                style={styles.textInput}
+                placeholder="Teléfono (opcional)"
+                placeholderTextColor={Colors.gray1}
+                value={formData.phone}
+                onChangeText={(value) => handleInputChange('phone', value)}
+                keyboardType="phone-pad"
+                autoComplete="tel"
+              />
+            </View>
+
+            {/* Campo de contraseña */}
+            <View style={styles.inputContainer}>
+              <Ionicons name="lock-closed-outline" size={20} color={Colors.gray1} style={styles.inputIcon} />
+              <TextInput
+                style={styles.textInput}
+                placeholder="Contraseña"
+                placeholderTextColor={Colors.gray1}
+                value={formData.password}
+                onChangeText={(value) => handleInputChange('password', value)}
+                secureTextEntry={!showPassword}
+                autoComplete="password"
+              />
+              <TouchableOpacity
+                style={styles.eyeIcon}
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color={Colors.gray1}
+                />
+              </TouchableOpacity>
+            </View>
+
+            {/* Campo de confirmar contraseña */}
+            <View style={styles.inputContainer}>
+              <Ionicons name="lock-closed-outline" size={20} color={Colors.gray1} style={styles.inputIcon} />
+              <TextInput
+                style={styles.textInput}
+                placeholder="Confirmar contraseña"
+                placeholderTextColor={Colors.gray1}
+                value={formData.confirmPassword}
+                onChangeText={(value) => handleInputChange('confirmPassword', value)}
+                secureTextEntry={!showConfirmPassword}
+                autoComplete="password"
+              />
+              <TouchableOpacity
+                style={styles.eyeIcon}
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                <Ionicons
+                  name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color={Colors.gray1}
+                />
+              </TouchableOpacity>
+            </View>
+
+            {/* Botón de registro */}
+            <TouchableOpacity
+              style={[styles.registerButton, isLoading && styles.registerButtonDisabled]}
+              onPress={handleRegister}
+              disabled={isLoading}
+            >
+              <LinearGradient
+                colors={[Colors.accent, Colors.lavanda]}
+                style={styles.registerButtonGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              >
+                {isLoading ? (
+                  <ActivityIndicator size="small" color={Colors.white} />
+                ) : (
+                  <Text style={styles.registerButtonText}>Crear Cuenta</Text>
+                )}
+              </LinearGradient>
             </TouchableOpacity>
-          </View>
-        </Animated.View>
-      </View>
+
+            {/* Información adicional */}
+            <View style={styles.infoContainer}>
+              <Text style={styles.infoText}>
+                Al registrarte, aceptas nuestros términos de servicio y política de privacidad
+              </Text>
+            </View>
+
+            {/* Enlace para login */}
+            <View style={styles.loginContainer}>
+              <Text style={styles.loginText}>¿Ya tienes cuenta? </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                <Text style={styles.loginLink}>Inicia sesión</Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -176,6 +308,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
+  },
+  scrollContainer: {
+    flexGrow: 1,
   },
   gradient: {
     position: 'absolute',
@@ -258,52 +393,48 @@ const styles = StyleSheet.create({
     marginBottom: 25,
     lineHeight: 20,
   },
-  googleButton: {
-    height: 55,
-    borderRadius: 12,
-    backgroundColor: Colors.white,
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: Colors.gray2,
-    marginBottom: 25,
-    elevation: 2,
-    shadowColor: Colors.dark1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderRadius: 12,
+    marginBottom: 15,
+    paddingHorizontal: 15,
+    backgroundColor: Colors.white,
+    height: 55,
   },
-  googleButtonContent: {
+  inputIcon: {
+    marginRight: 10,
+  },
+  textInput: {
     flex: 1,
-    flexDirection: 'row',
+    fontSize: 16,
+    color: Colors.dark2,
+    paddingVertical: 0,
+  },
+  eyeIcon: {
+    padding: 5,
+  },
+  registerButton: {
+    height: 55,
+    borderRadius: 12,
+    marginTop: 10,
+    marginBottom: 15,
+    overflow: 'hidden',
+  },
+  registerButtonDisabled: {
+    opacity: 0.6,
+  },
+  registerButtonGradient: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  googleButtonText: {
-    color: Colors.dark2,
-    fontWeight: '600',
+  registerButtonText: {
+    color: Colors.white,
+    fontWeight: 'bold',
     fontSize: 16,
-    marginLeft: 12,
-  },
-  benefitsContainer: {
-    marginBottom: 20,
-  },
-  benefitsTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.dark2,
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  benefitItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-    paddingHorizontal: 5,
-  },
-  benefitText: {
-    fontSize: 14,
-    color: Colors.dark2,
-    marginLeft: 12,
-    flex: 1,
   },
   infoContainer: {
     marginVertical: 15,
