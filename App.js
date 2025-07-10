@@ -11,6 +11,7 @@ import { useEffect, useCallback, useState } from "react";
 import AuthContext from "./contexts/AuthContext";
 import notificationService from "./services/notificationService";
 import apiService from "./services/apiService";
+import authService from "./services/authService";
 
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
@@ -43,8 +44,8 @@ export default function App() {
   useEffect(() => {
     async function prepare() {
       try {
-        // Cualquier tarea de inicialización puede ir aquí
-        // Por ejemplo, cargar recursos, fuentes, etc.
+        // Inicializar Google Sign In
+        await authService.initializeGoogleSignIn();
 
         // Inicializar notificaciones push
         await notificationService.registerForPushNotifications();
@@ -56,6 +57,20 @@ export default function App() {
             ...prev,
             currentTenantId: tenantId,
           }));
+        }
+
+        // Verificar si el usuario ya está autenticado
+        const isAuthenticated = await authService.isAuthenticated();
+        if (isAuthenticated) {
+          // Opcional: obtener datos del usuario actual
+          const currentUser = await authService.getCurrentGoogleUser();
+          if (currentUser) {
+            setAuthState((prev) => ({
+              ...prev,
+              isAuthenticated: true,
+              user: currentUser,
+            }));
+          }
         }
 
         // Configurar manejadores de notificaciones

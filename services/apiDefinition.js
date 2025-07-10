@@ -4,11 +4,8 @@
 const API_BASE_URL = "https://localhost:8080/api";
 
 // Endpoints para autenticación
-const AUTH_ENDPOINTS = {
-  login: `${API_BASE_URL}/auth/client/login`,
-  register: `${API_BASE_URL}/auth/client/register`,
-  oauth: `${API_BASE_URL}/auth/client/oauth`,
-  forgotPassword: `${API_BASE_URL}/auth/client/forgot-password`,
+export const AUTH_ENDPOINTS = {
+  oauth: "/auth/oauth", // POST - Autenticación OAuth (Google, Facebook, etc.)
 };
 
 // Endpoints para empresas
@@ -52,7 +49,6 @@ const TENANT_ENDPOINTS = {
 
 export {
   API_BASE_URL,
-  AUTH_ENDPOINTS,
   ENTERPRISE_ENDPOINTS,
   CATEGORY_ENDPOINTS,
   QUEUE_ENDPOINTS,

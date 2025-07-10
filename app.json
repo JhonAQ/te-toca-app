@@ -22,8 +22,10 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "scheme": "tetoca",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.jhonAQ.TeTocaApp"
     },
     "android": {
       "edgeToEdgeEnabled": true,
