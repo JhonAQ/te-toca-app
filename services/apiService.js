@@ -1,6 +1,38 @@
 import axios from "axios";
 import { API_BASE_URL } from "./apiDefinition";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Platform } from "react-native";
+
+// Importación condicional de AsyncStorage
+let AsyncStorage;
+if (Platform.OS === "web") {
+  // Para web, usaremos localStorage como fallback
+  AsyncStorage = {
+    getItem: async (key) => {
+      try {
+        return localStorage.getItem(key);
+      } catch (error) {
+        console.warn("LocalStorage not available:", error);
+        return null;
+      }
+    },
+    setItem: async (key, value) => {
+      try {
+        localStorage.setItem(key, value);
+      } catch (error) {
+        console.warn("LocalStorage not available:", error);
+      }
+    },
+    removeItem: async (key) => {
+      try {
+        localStorage.removeItem(key);
+      } catch (error) {
+        console.warn("LocalStorage not available:", error);
+      }
+    },
+  };
+} else {
+  AsyncStorage = require("@react-native-async-storage/async-storage").default;
+}
 
 // Crear una instancia de axios con configuración común
 const api = axios.create({

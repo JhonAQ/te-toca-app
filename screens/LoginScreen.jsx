@@ -8,10 +8,8 @@ import {
   TouchableOpacity,
   Animated,
   Dimensions,
-  KeyboardAvoidingView,
   Platform,
-  TouchableWithoutFeedback,
-  Keyboard
+  ScrollView
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -74,54 +72,55 @@ export default function LoginScreen({ navigation }) {
     }
 
     if (isValid) {
-      // Aquí iría la lógica de autenticación
+      console.log('Login exitoso:', { email, password });
       navigation.navigate('Category');
     }
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.container}>
-            {/* Fondo con gradiente */}
-            <LinearGradient
-              colors={[Colors.dark1, Colors.dark3, Colors.accent]}
-              style={styles.gradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        {/* Fondo con gradiente */}
+        <LinearGradient
+          colors={[Colors.dark1, Colors.dark3, Colors.accent]}
+          style={styles.gradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        />
+
+        {/* Elementos decorativos */}
+        <View style={styles.decorativeCircle1} />
+        <View style={styles.decorativeCircle2} />
+
+        <ScrollView 
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Logo y título principal */}
+          <View style={styles.headerSection}>
+            <Image
+              source={require('../assets/TeTocaLogo.png')}
+              style={styles.logo}
+              resizeMode="contain"
             />
+            <Text style={styles.appSlogan}>Tu tiempo es valioso, organízalo</Text>
+          </View>
 
-            {/* Elementos decorativos */}
-            <View style={styles.decorativeCircle1} />
-            <View style={styles.decorativeCircle2} />
+          {/* Contenedor de formulario animado */}
+          <Animated.View
+            style={[
+              styles.formContainer,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: translateY }]
+              }
+            ]}
+          >
+            <Text style={styles.formTitle}>Iniciar Sesión</Text>
 
-            {/* Logo y título principal */}
-            <View style={styles.headerSection}>
-              <Image
-                source={require('../assets/TeTocaLogo.png')}
-                style={styles.logo}
-                resizeMode="contain"
-              />
-              <Text style={styles.appSlogan}>Tu tiempo es valioso, organízalo</Text>
-            </View>
-
-            {/* Contenedor de formulario animado */}
-            <Animated.View
-              style={[
-                styles.formContainer,
-                {
-                  opacity: fadeAnim,
-                  transform: [{ translateY: translateY }]
-                }
-              ]}
-            >
-              <Text style={styles.formTitle}>Iniciar Sesión</Text>
-
-              {/* Campos de entrada */}
+            {/* Campo de correo */}
+            <View style={styles.inputContainer}>
               <View style={styles.inputWrapper}>
                 <View style={styles.iconBackground}>
                   <Ionicons name="mail" size={18} color={Colors.white} />
@@ -131,13 +130,21 @@ export default function LoginScreen({ navigation }) {
                   placeholder="Correo electrónico"
                   placeholderTextColor={Colors.gray1}
                   value={email}
-                  onChangeText={setEmail}
+                  onChangeText={(text) => {
+                    setEmail(text);
+                    setEmailError('');
+                  }}
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  autoComplete={Platform.OS === 'web' ? 'email' : undefined}
+                  textContentType={Platform.OS !== 'web' ? 'emailAddress' : undefined}
                 />
               </View>
               {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+            </View>
 
+            {/* Campo de contraseña */}
+            <View style={styles.inputContainer}>
               <View style={styles.inputWrapper}>
                 <View style={styles.iconBackground}>
                   <Ionicons name="lock-closed" size={18} color={Colors.white} />
@@ -147,8 +154,13 @@ export default function LoginScreen({ navigation }) {
                   placeholder="Contraseña"
                   placeholderTextColor={Colors.gray1}
                   value={password}
-                  onChangeText={setPassword}
+                  onChangeText={(text) => {
+                    setPassword(text);
+                    setPasswordError('');
+                  }}
                   secureTextEntry={!showPassword}
+                  autoComplete={Platform.OS === 'web' ? 'current-password' : undefined}
+                  textContentType={Platform.OS !== 'web' ? 'password' : undefined}
                 />
                 <TouchableOpacity
                   style={styles.eyeIcon}
@@ -162,54 +174,54 @@ export default function LoginScreen({ navigation }) {
                 </TouchableOpacity>
               </View>
               {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+            </View>
 
-              <TouchableOpacity style={styles.forgotPassword}>
-                <Text style={styles.forgotPasswordText}>¿Olvidaste tu contraseña?</Text>
-              </TouchableOpacity>
+            <TouchableOpacity style={styles.forgotPassword}>
+              <Text style={styles.forgotPasswordText}>¿Olvidaste tu contraseña?</Text>
+            </TouchableOpacity>
 
-              {/* Botón de ingreso */}
-              <TouchableOpacity
-                style={styles.loginButton}
-                onPress={handleLogin}
-                activeOpacity={0.8}
+            {/* Botón de ingreso */}
+            <TouchableOpacity
+              style={styles.loginButton}
+              onPress={handleLogin}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={[Colors.accent, Colors.dark3]}
+                style={styles.buttonGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
               >
-                <LinearGradient
-                  colors={[Colors.accent, Colors.dark3]}
-                  style={styles.buttonGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                >
-                  <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
-                </LinearGradient>
+                <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            {/* Opciones alternativas */}
+            <View style={styles.alternativeLoginContainer}>
+              <View style={styles.divider} />
+              <Text style={styles.orText}>O continúa con</Text>
+              <View style={styles.divider} />
+            </View>
+
+            <View style={styles.socialButtonsRow}>
+              <TouchableOpacity style={styles.socialButton}>
+                <Ionicons name="logo-google" size={22} color={Colors.dark2} />
               </TouchableOpacity>
+              <TouchableOpacity style={styles.socialButton}>
+                <Ionicons name="logo-facebook" size={22} color={Colors.dark2} />
+              </TouchableOpacity>
+            </View>
 
-              {/* Opciones alternativas */}
-              <View style={styles.alternativeLoginContainer}>
-                <View style={styles.divider} />
-                <Text style={styles.orText}>O continúa con</Text>
-                <View style={styles.divider} />
-              </View>
-
-              <View style={styles.socialButtonsRow}>
-                <TouchableOpacity style={styles.socialButton}>
-                  <Ionicons name="logo-google" size={22} color={Colors.dark2} />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.socialButton}>
-                  <Ionicons name="logo-facebook" size={22} color={Colors.dark2} />
-                </TouchableOpacity>
-              </View>
-
-              {/* Enlace para registro */}
-              <View style={styles.registerContainer}>
-                <Text style={styles.registerText}>¿No tienes cuenta? </Text>
-                <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                  <Text style={styles.registerLink}>Regístrate ahora</Text>
-                </TouchableOpacity>
-              </View>
-            </Animated.View>
-          </View>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
+            {/* Enlace para registro */}
+            <View style={styles.registerContainer}>
+              <Text style={styles.registerText}>¿No tienes cuenta? </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                <Text style={styles.registerLink}>Regístrate ahora</Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
@@ -221,6 +233,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 30,
   },
   gradient: {
     position: 'absolute',
@@ -258,12 +274,6 @@ const styles = StyleSheet.create({
     height: 150,
     marginBottom: 8,
   },
-  appName: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: Colors.white,
-    marginBottom: 5,
-  },
   appSlogan: {
     fontSize: 16,
     color: 'rgba(255,255,255,0.8)',
@@ -290,12 +300,14 @@ const styles = StyleSheet.create({
     marginBottom: 25,
     textAlign: 'center',
   },
+  inputContainer: {
+    marginBottom: 10,
+  },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.gray3,
     borderRadius: 12,
-    marginBottom: 15,
     height: 55,
     paddingRight: 15,
   },
@@ -314,6 +326,11 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
     color: Colors.dark1,
     fontSize: 16,
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    outline: Platform.OS === 'web' ? 'none' : undefined,
+    outlineWidth: 0,
+    outlineColor: 'transparent',
   },
   eyeIcon: {
     padding: 8,
@@ -322,12 +339,12 @@ const styles = StyleSheet.create({
     color: 'red',
     fontSize: 12,
     marginLeft: 10,
-    marginTop: -10,
-    marginBottom: 10,
+    marginTop: 5,
   },
   forgotPassword: {
     alignSelf: 'flex-end',
     marginBottom: 20,
+    marginTop: 10,
   },
   forgotPasswordText: {
     color: Colors.accent,

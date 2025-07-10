@@ -37,6 +37,25 @@
       "eas": {
         "projectId": "da18d90e-bcd5-4688-bc7d-ea22edc6761d"
       }
-    }
+    },
+    "web": {
+      "favicon": "./assets/TeTocaLogo.png",
+      "bundler": "metro",
+      "output": "static",
+      "name": "TeToca - Gestión de Colas",
+      "shortName": "TeToca",
+      "description": "Aplicación para gestionar colas y turnos en instituciones",
+      "startUrl": "/",
+      "display": "standalone",
+      "orientation": "portrait",
+      "themeColor": "#883EF2",
+      "backgroundColor": "#0D0426"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "platforms": [
+      "web"
+    ]
   }
 }

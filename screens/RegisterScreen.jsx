@@ -417,6 +417,11 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
     color: Colors.dark1,
     fontSize: 16,
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    outline: Platform.OS === 'web' ? 'none' : undefined,
+    outlineWidth: 0,
+    outlineColor: 'transparent',
   },
   eyeIcon: {
     padding: 8,
