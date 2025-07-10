@@ -27,20 +27,3 @@ const categoryService = {
 };
 
 export default categoryService;
-    }
-
-    try {
-      const response = await apiService.get(CATEGORY_ENDPOINTS.list);
-
-      // La API podría devolver los datos en diferentes estructuras
-      const categories = response.data || response;
-
-      return categories.map((data) => new Category(data));
-    } catch (error) {
-      console.error("Error al obtener categorías:", error);
-      throw error;
-    }
-  },
-};
-
-export default categoryService;
