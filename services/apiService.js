@@ -19,8 +19,15 @@ api.interceptors.request.use(
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+
+      // Agregar el tenantId si está disponible
+      const tenantId = await AsyncStorage.getItem("currentTenantId");
+      if (tenantId && config.url.includes("/tenant/")) {
+        // Reemplaza el placeholder {tenantId} en la URL si existe
+        config.url = config.url.replace("{tenantId}", tenantId);
+      }
     } catch (error) {
-      console.error("Error al obtener el token:", error);
+      console.error("Error al obtener el token o tenantId:", error);
     }
     return config;
   },
@@ -36,10 +43,18 @@ api.interceptors.response.use(
   },
   async (error) => {
     // Manejo de errores como token expirado, etc.
-    if (error.response && error.response.status === 401) {
-      // Token expirado, redirigir a login
-      await AsyncStorage.removeItem("authToken");
-      // Aquí podrías disparar alguna acción para redirigir al login
+    if (error.response) {
+      const { status } = error.response;
+
+      if (status === 401) {
+        // Token expirado o inválido
+        await AsyncStorage.removeItem("authToken");
+        // Podríamos usar un EventEmitter para notificar a la app que debe redirigir al login
+        // EventEmitter.emit('AUTH_ERROR', { type: 'UNAUTHORIZED' });
+      } else if (status === 403) {
+        // Permiso denegado
+        // EventEmitter.emit('AUTH_ERROR', { type: 'FORBIDDEN' });
+      }
     }
     return Promise.reject(error);
   }
@@ -114,9 +129,25 @@ const handleApiError = (error) => {
   console.error("Error API:", errorMessage);
 };
 
+// Configurar la URL del tenant actual para las peticiones
+const setTenantId = async (tenantId) => {
+  if (tenantId) {
+    await AsyncStorage.setItem("currentTenantId", tenantId);
+  } else {
+    await AsyncStorage.removeItem("currentTenantId");
+  }
+};
+
+// Obtener el tenant actual
+const getCurrentTenantId = async () => {
+  return await AsyncStorage.getItem("currentTenantId");
+};
+
 export default {
   get,
   post,
   put,
   delete: del,
+  setTenantId,
+  getCurrentTenantId,
 };

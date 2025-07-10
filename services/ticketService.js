@@ -1,11 +1,13 @@
 import apiService from "./apiService";
-import { TICKET_ENDPOINTS } from "./apiDefinition";
+import { TICKET_ENDPOINTS, TENANT_ENDPOINTS } from "./apiDefinition";
 import { Ticket } from "../models";
+import * as Notifications from "expo-notifications";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Variable para controlar si usamos datos mock o la API real
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
-// Datos mock para usar durante el desarrollo
+// Datos mock para usar durante el desarrollo (mantener para compatibilidad)
 const mockTicket = {
   id: "123456",
   ticketId: "AB25",
@@ -25,7 +27,7 @@ const mockTicket = {
 // Servicio para operaciones relacionadas con tickets
 const ticketService = {
   // Crear un nuevo ticket (unirse a una cola)
-  async joinQueue(queueId) {
+  async joinQueue(queueId, tenantId = null) {
     if (USE_MOCK_DATA) {
       return new Promise((resolve) => {
         setTimeout(() => {
@@ -41,8 +43,34 @@ const ticketService = {
     }
 
     try {
-      const response = await apiService.post(TICKET_ENDPOINTS.create(queueId));
-      return new Ticket(response.data);
+      let response;
+
+      // Obtener el token de notificaciones
+      let pushToken = null;
+      try {
+        pushToken = await AsyncStorage.getItem("pushToken");
+      } catch (error) {
+        console.warn("No se pudo obtener el token de notificaciones:", error);
+      }
+
+      if (tenantId) {
+        // Usar la API multitenant
+        await apiService.setTenantId(tenantId);
+        response = await apiService.post(
+          TENANT_ENDPOINTS.joinQueue(tenantId, queueId),
+          { pushToken }
+        );
+      } else {
+        // Usar la API estándar
+        response = await apiService.post(TICKET_ENDPOINTS.create(queueId), {
+          pushToken,
+        });
+      }
+
+      // Transformar la respuesta al formato esperado por el modelo Ticket
+      const ticketData = transformApiTicketToModel(response);
+
+      return new Ticket(ticketData);
     } catch (error) {
       console.error(`Error al unirse a la cola ${queueId}:`, error);
       throw error;
@@ -68,7 +96,11 @@ const ticketService = {
       const response = await apiService.get(
         TICKET_ENDPOINTS.getDetails(ticketId)
       );
-      return new Ticket(response.data);
+
+      // Transformar la respuesta al formato esperado por el modelo Ticket
+      const ticketData = transformApiTicketToModel(response);
+
+      return new Ticket(ticketData);
     } catch (error) {
       console.error(`Error al obtener detalles del ticket ${ticketId}:`, error);
       throw error;
@@ -93,7 +125,11 @@ const ticketService = {
 
     try {
       const response = await apiService.put(TICKET_ENDPOINTS.pause(ticketId));
-      return new Ticket(response.data);
+
+      // Transformar la respuesta al formato esperado por el modelo Ticket
+      const ticketData = transformApiTicketToModel(response);
+
+      return new Ticket(ticketData);
     } catch (error) {
       console.error(`Error al pausar ticket ${ticketId}:`, error);
       throw error;
@@ -118,7 +154,11 @@ const ticketService = {
 
     try {
       const response = await apiService.put(TICKET_ENDPOINTS.resume(ticketId));
-      return new Ticket(response.data);
+
+      // Transformar la respuesta al formato esperado por el modelo Ticket
+      const ticketData = transformApiTicketToModel(response);
+
+      return new Ticket(ticketData);
     } catch (error) {
       console.error(`Error al reanudar ticket ${ticketId}:`, error);
       throw error;
@@ -143,6 +183,57 @@ const ticketService = {
       throw error;
     }
   },
+
+  // Registrar token de notificaciones
+  async registerPushToken(token) {
+    try {
+      await AsyncStorage.setItem("pushToken", token);
+      return true;
+    } catch (error) {
+      console.error("Error al guardar token de notificaciones:", error);
+      return false;
+    }
+  },
 };
+
+// Función para transformar la respuesta de la API al formato del modelo Ticket
+function transformApiTicketToModel(apiResponse) {
+  // Si es una respuesta de la API multitenant
+  if (apiResponse.id && apiResponse.queueRegistration) {
+    const {
+      id,
+      queueRegistration,
+      turnStatus,
+      orderNumber,
+      generationDateTime,
+    } = apiResponse;
+
+    return {
+      id: id.toString(),
+      ticketId: `T-${orderNumber}`, // Generar un ID amigable
+      queueId: queueRegistration.queue.id.toString(),
+      enterpriseId: queueRegistration.queue.companyAgency?.id.toString() || "",
+      enterpriseName: queueRegistration.queue.companyAgency?.name || "Agencia",
+      queueName: queueRegistration.queue.name,
+      issueDate: new Date(generationDateTime).toLocaleDateString(),
+      issueTime: new Date(generationDateTime).toLocaleTimeString(),
+      status:
+        turnStatus.name === "EN_ESPERA"
+          ? "waiting"
+          : turnStatus.name === "PAUSADO"
+          ? "paused"
+          : turnStatus.name === "ATENDIDO"
+          ? "attended"
+          : "cancelled",
+      position: orderNumber,
+      currentTicket: `T-${orderNumber - 1}`, // Ejemplo, idealmente debería venir de la API
+      waitTime: "Estimando...", // Idealmente debería venir de la API
+      peopleTime: "Estimando...", // Idealmente debería venir de la API
+    };
+  }
+
+  // Si es el formato estándar de la API
+  return apiResponse;
+}
 
 export default ticketService;

@@ -1,11 +1,11 @@
 import apiService from "./apiService";
-import { QUEUE_ENDPOINTS } from "./apiDefinition";
+import { QUEUE_ENDPOINTS, TENANT_ENDPOINTS } from "./apiDefinition";
 import { Queue } from "../models";
 
 // Variable para controlar si usamos datos mock o la API real
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
-// Datos mock para usar durante el desarrollo
+// Datos mock para usar durante el desarrollo (mantener para compatibilidad)
 const mockQueuesByEnterprise = {
   1: [
     {
@@ -79,7 +79,11 @@ const queueService = {
       const response = await apiService.get(
         QUEUE_ENDPOINTS.listByEnterprise(enterpriseId)
       );
-      return response.data.map((data) => new Queue(data));
+
+      // La API podría devolver los datos directamente o dentro de una propiedad "data"
+      const queues = response.data || response;
+
+      return queues.map((data) => new Queue(data));
     } catch (error) {
       console.error(
         `Error al obtener colas para empresa ${enterpriseId}:`,
@@ -111,9 +115,43 @@ const queueService = {
 
     try {
       const response = await apiService.get(QUEUE_ENDPOINTS.detail(queueId));
-      return new Queue(response.data);
+      return new Queue(response);
     } catch (error) {
       console.error(`Error al obtener detalles de cola ${queueId}:`, error);
+      throw error;
+    }
+  },
+
+  // Obtener colas por agencia en un tenant específico
+  async getQueuesByAgency(tenantId, agencyId) {
+    if (USE_MOCK_DATA) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          // En modo mock, usar datos existentes o un array vacío
+          const queues = mockQueuesByEnterprise[agencyId] || [];
+          resolve(queues.map((data) => new Queue(data)));
+        }, 300);
+      });
+    }
+
+    try {
+      // Establecer el tenantId actual
+      await apiService.setTenantId(tenantId);
+
+      // Obtener detalles de la agencia que incluye sus colas
+      const agencyResponse = await apiService.get(
+        TENANT_ENDPOINTS.agencyDetail(tenantId, agencyId)
+      );
+
+      // Extraer las colas de la respuesta
+      const queues = agencyResponse.queues || [];
+
+      return queues.map((data) => new Queue(data));
+    } catch (error) {
+      console.error(
+        `Error al obtener colas para la agencia ${agencyId} del tenant ${tenantId}:`,
+        error
+      );
       throw error;
     }
   },

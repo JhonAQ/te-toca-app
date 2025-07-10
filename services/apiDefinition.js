@@ -1,13 +1,17 @@
-const API_BASE_URL = "https://api.tetoca.com/api/";
+// Definición de endpoints para la API de TeToca
 
-// Para el auth
+// URL base de la API
+const API_BASE_URL = "https://localhost:8080/api";
+
+// Endpoints para autenticación
 const AUTH_ENDPOINTS = {
-  login: `${API_BASE_URL}/auth/login`,
-  register: `${API_BASE_URL}/auth/register`,
-  forgotPassword: `${API_BASE_URL}/auth/forgot-password`,
+  login: `${API_BASE_URL}/auth/client/login`,
+  register: `${API_BASE_URL}/auth/client/register`,
+  oauth: `${API_BASE_URL}/auth/client/oauth`,
+  forgotPassword: `${API_BASE_URL}/auth/client/forgot-password`,
 };
 
-// Para datos de empresas
+// Endpoints para empresas
 const ENTERPRISE_ENDPOINTS = {
   list: `${API_BASE_URL}/enterprises`,
   detail: (id) => `${API_BASE_URL}/enterprises/${id}`,
@@ -28,13 +32,22 @@ const QUEUE_ENDPOINTS = {
   detail: (queueId) => `${API_BASE_URL}/queues/${queueId}`,
 };
 
-// para  los tickets
+// Endpoints para tickets
 const TICKET_ENDPOINTS = {
   create: (queueId) => `${API_BASE_URL}/queues/${queueId}/join`,
   getDetails: (ticketId) => `${API_BASE_URL}/tickets/${ticketId}`,
   pause: (ticketId) => `${API_BASE_URL}/tickets/${ticketId}/pause`,
   resume: (ticketId) => `${API_BASE_URL}/tickets/${ticketId}/resume`,
   cancel: (ticketId) => `${API_BASE_URL}/tickets/${ticketId}/cancel`,
+};
+
+// Endpoints específicos para el manejo de tenant
+const TENANT_ENDPOINTS = {
+  agencies: (tenantId) => `${API_BASE_URL}/tenant/${tenantId}/public/agencies`,
+  agencyDetail: (tenantId, agencyId) =>
+    `${API_BASE_URL}/tenant/${tenantId}/public/agencies/${agencyId}`,
+  joinQueue: (tenantId, queueId) =>
+    `${API_BASE_URL}/tenant/${tenantId}/queues/${queueId}/join`,
 };
 
 export {
@@ -44,4 +57,5 @@ export {
   CATEGORY_ENDPOINTS,
   QUEUE_ENDPOINTS,
   TICKET_ENDPOINTS,
+  TENANT_ENDPOINTS,
 };

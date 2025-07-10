@@ -1,8 +1,184 @@
 import apiService from "./apiService";
-import { ENTERPRISE_ENDPOINTS } from "./apiDefinition";
+import { ENTERPRISE_ENDPOINTS, TENANT_ENDPOINTS } from "./apiDefinition";
 import { Enterprise } from "../models";
 
-// Datos mock para usar durante el desarrollo
+// Variable para controlar si usamos datos mock o la API real
+const USE_MOCK_DATA = false;
+
+// Servicio para operaciones relacionadas con empresas
+const enterpriseService = {
+  // Obtener todas las empresas
+  async getAllEnterprises() {
+    if (USE_MOCK_DATA) {
+      // Usar mockEnterprises existente
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(mockEnterprises.map((data) => new Enterprise(data)));
+        }, 500);
+      });
+    }
+
+    try {
+      const response = await apiService.get(ENTERPRISE_ENDPOINTS.list);
+
+      // La API podría devolver una estructura paginada
+      const enterprises = response.data || response;
+
+      return enterprises.map((data) => new Enterprise(data));
+    } catch (error) {
+      console.error("Error al obtener empresas:", error);
+      throw error;
+    }
+  },
+
+  // Obtener una empresa por ID
+  async getEnterpriseById(enterpriseId) {
+    if (USE_MOCK_DATA) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          const enterprise = mockEnterprises.find((e) => e.id === enterpriseId);
+          if (enterprise) {
+            resolve(new Enterprise(enterprise));
+          } else {
+            reject(new Error("Empresa no encontrada"));
+          }
+        }, 300);
+      });
+    }
+
+    try {
+      const response = await apiService.get(
+        ENTERPRISE_ENDPOINTS.detail(enterpriseId)
+      );
+      return new Enterprise(response);
+    } catch (error) {
+      console.error(`Error al obtener empresa ${enterpriseId}:`, error);
+      throw error;
+    }
+  },
+
+  // Buscar empresas por texto
+  async searchEnterprises(searchText) {
+    if (USE_MOCK_DATA) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const results = mockEnterprises.filter(
+            (e) =>
+              e.name.toLowerCase().includes(searchText.toLowerCase()) ||
+              e.address.toLowerCase().includes(searchText.toLowerCase())
+          );
+          resolve(results.map((data) => new Enterprise(data)));
+        }, 300);
+      });
+    }
+
+    try {
+      const response = await apiService.get(ENTERPRISE_ENDPOINTS.search, {
+        q: searchText,
+      });
+
+      // La API podría devolver una estructura paginada
+      const results = response.data || response;
+
+      return results.map((data) => new Enterprise(data));
+    } catch (error) {
+      console.error("Error al buscar empresas:", error);
+      throw error;
+    }
+  },
+
+  // Obtener empresas por categoría
+  async getEnterprisesByCategory(categoryId) {
+    if (USE_MOCK_DATA) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          // En modo mock, simplemente devolvemos todas las empresas
+          resolve(mockEnterprises.map((data) => new Enterprise(data)));
+        }, 300);
+      });
+    }
+
+    try {
+      const response = await apiService.get(
+        ENTERPRISE_ENDPOINTS.byCategory(categoryId)
+      );
+
+      // La API podría devolver una estructura paginada
+      const enterprises = response.data || response;
+
+      return enterprises.map((data) => new Enterprise(data));
+    } catch (error) {
+      console.error(
+        `Error al obtener empresas por categoría ${categoryId}:`,
+        error
+      );
+      throw error;
+    }
+  },
+
+  // Obtener agencias de un tenant específico
+  async getAgenciesByTenant(tenantId) {
+    if (USE_MOCK_DATA) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(mockEnterprises.map((data) => new Enterprise(data)));
+        }, 300);
+      });
+    }
+
+    try {
+      // Establecer el tenantId actual
+      await apiService.setTenantId(tenantId);
+
+      const response = await apiService.get(
+        TENANT_ENDPOINTS.agencies(tenantId)
+      );
+
+      // Extraer los datos de la estructura paginada
+      const agencies = response.content || response;
+
+      return agencies.map((data) => new Enterprise(data));
+    } catch (error) {
+      console.error(`Error al obtener agencias del tenant ${tenantId}:`, error);
+      throw error;
+    }
+  },
+
+  // Obtener detalles de una agencia en un tenant específico
+  async getAgencyDetail(tenantId, agencyId) {
+    if (USE_MOCK_DATA) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          const enterprise = mockEnterprises.find((e) => e.id === agencyId);
+          if (enterprise) {
+            resolve(new Enterprise(enterprise));
+          } else {
+            reject(new Error("Agencia no encontrada"));
+          }
+        }, 300);
+      });
+    }
+
+    try {
+      // Establecer el tenantId actual
+      await apiService.setTenantId(tenantId);
+
+      const response = await apiService.get(
+        TENANT_ENDPOINTS.agencyDetail(tenantId, agencyId)
+      );
+
+      return new Enterprise(response);
+    } catch (error) {
+      console.error(
+        `Error al obtener agencia ${agencyId} del tenant ${tenantId}:`,
+        error
+      );
+      throw error;
+    }
+  },
+};
+
+// Datos mock para usar durante el desarrollo (mantenidos para compatibilidad)
 const mockEnterprises = [
   {
     id: "1",
@@ -69,109 +245,5 @@ const mockEnterprises = [
   },
   // Más empresas mock...
 ];
-
-// Variable para controlar si usamos datos mock o la API real
-const USE_MOCK_DATA = true;
-
-// Servicio para operaciones relacionadas con empresas
-const enterpriseService = {
-  // Obtener todas las empresas
-  async getAllEnterprises() {
-    if (USE_MOCK_DATA) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          let debbug = new Enterprise(mockEnterprises[0]);
-          console.log(debbug.logo);
-          resolve(mockEnterprises.map((data) => new Enterprise(data)));
-        }, 500); // Simulamos una demora de 500ms
-      });
-    }
-
-    try {
-      const response = await apiService.get(ENTERPRISE_ENDPOINTS.list);
-      return response.data.map((data) => new Enterprise(data));
-    } catch (error) {
-      console.error("Error al obtener empresas:", error);
-      throw error;
-    }
-  },
-
-  // Obtener una empresa por ID
-  async getEnterpriseById(enterpriseId) {
-    if (USE_MOCK_DATA) {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          const enterprise = mockEnterprises.find((e) => e.id === enterpriseId);
-          if (enterprise) {
-            resolve(new Enterprise(enterprise));
-          } else {
-            reject(new Error("Empresa no encontrada"));
-          }
-        }, 300);
-      });
-    }
-
-    try {
-      const response = await apiService.get(
-        ENTERPRISE_ENDPOINTS.detail(enterpriseId)
-      );
-      return new Enterprise(response.data);
-    } catch (error) {
-      console.error(`Error al obtener empresa ${enterpriseId}:`, error);
-      throw error;
-    }
-  },
-
-  // Buscar empresas por texto
-  async searchEnterprises(searchText) {
-    if (USE_MOCK_DATA) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const results = mockEnterprises.filter(
-            (e) =>
-              e.name.toLowerCase().includes(searchText.toLowerCase()) ||
-              e.address.toLowerCase().includes(searchText.toLowerCase())
-          );
-          resolve(results.map((data) => new Enterprise(data)));
-        }, 300);
-      });
-    }
-
-    try {
-      const response = await apiService.get(ENTERPRISE_ENDPOINTS.search, {
-        q: searchText,
-      });
-      return response.data.map((data) => new Enterprise(data));
-    } catch (error) {
-      console.error("Error al buscar empresas:", error);
-      throw error;
-    }
-  },
-
-  // Obtener empresas por categoría
-  async getEnterprisesByCategory(categoryId) {
-    if (USE_MOCK_DATA) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          // En modo mock, simplemente devolvemos todas las empresas
-          resolve(mockEnterprises.map((data) => new Enterprise(data)));
-        }, 300);
-      });
-    }
-
-    try {
-      const response = await apiService.get(
-        ENTERPRISE_ENDPOINTS.byCategory(categoryId)
-      );
-      return response.data.map((data) => new Enterprise(data));
-    } catch (error) {
-      console.error(
-        `Error al obtener empresas por categoría ${categoryId}:`,
-        error
-      );
-      throw error;
-    }
-  },
-};
 
 export default enterpriseService;
